@@ -1,5 +1,12 @@
+import { Suspense } from "react";
 import Link from "next/link";
+import { connection } from "next/server";
 import { NAV_LINKS, SITE_NAME } from "@/lib/constants";
+
+async function FooterYear() {
+  await connection();
+  return <>{new Date().getFullYear()}</>;
+}
 
 export function SiteFooter() {
   return (
@@ -53,7 +60,11 @@ export function SiteFooter() {
 
       <div className="border-t border-paper/15">
         <p className="mx-auto max-w-[1440px] px-4 py-6 text-sm text-stone md:px-6 lg:px-8">
-          © {new Date().getFullYear()} {SITE_NAME}. All rights reserved.
+          ©{" "}
+          <Suspense fallback="2026">
+            <FooterYear />
+          </Suspense>{" "}
+          {SITE_NAME}. All rights reserved.
         </p>
       </div>
     </footer>

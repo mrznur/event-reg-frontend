@@ -5,10 +5,12 @@ import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import { CtaLink } from "@/components/shared/cta-link";
 import { SITE_NAME } from "@/lib/constants";
+import { usePathname } from "next/navigation";
 
 type NavLink = { href: string; label: string };
 
 export function MobileMenu({ links }: { links: readonly NavLink[] }) {
+  const pathname = usePathname();
   const dialogRef = useRef<HTMLDialogElement>(null);
 
   const open = () => dialogRef.current?.showModal();
@@ -40,7 +42,7 @@ export function MobileMenu({ links }: { links: readonly NavLink[] }) {
             aria-label="Close menu"
             className="flex size-11 items-center justify-center"
           >
-            <X aria-hidden className="size-7" />
+            <X aria-hidden className="size-7 text-lime" />
           </button>
         </div>
 
@@ -50,7 +52,10 @@ export function MobileMenu({ links }: { links: readonly NavLink[] }) {
               <Link
                 href={link.href}
                 onClick={close}
-                className="heading-2 block py-2"
+                aria-current={link.href === pathname ? "page" : undefined}
+                className={`heading-2 block py-2 transition-colors duration-200 active:text-lime ${
+                  link.href === pathname ? "text-lime" : ""
+                }`}
               >
                 {link.label}
               </Link>
