@@ -122,3 +122,175 @@ dialog[open].menu-overlay {
 .slide-in {
   animation: slide-from-left 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
+
+.asteroid-field {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.asteroid-fragment {
+  position: absolute;
+  display: block;
+  background: linear-gradient(
+    135deg,
+    rgba(217, 255, 130, 0.95) 0%,
+    rgba(163, 230, 53, 0.85) 32%,
+    rgba(101, 163, 13, 0.65) 65%,
+    rgba(54, 83, 25, 0.3) 100%
+  );
+  box-shadow:
+    inset 2px 2px 5px rgba(236, 255, 190, 0.3),
+    inset -3px -3px 7px rgba(54, 83, 20, 0.2),
+    0 5px 18px rgba(163, 230, 53, 0.12);
+  opacity: 0.85;
+  will-change: transform;
+  animation: asteroid-drift 12s ease-in-out infinite alternate;
+}
+
+/* Small, irregular fragments */
+
+.fragment-1 {
+  width: 32px;
+  height: 24px;
+  left: 13%;
+  top: 24%;
+  clip-path: polygon(12% 15%, 42% 0, 57% 22%, 100% 35%, 78% 73%, 54% 100%, 18% 78%, 0 42%);
+  animation-duration: 13s;
+}
+
+.fragment-2 {
+  width: 17px;
+  height: 14px;
+  left: 31%;
+  top: 15%;
+  clip-path: polygon(0 35%, 42% 0, 100% 29%, 74% 100%, 16% 76%);
+  animation-delay: -4s;
+  animation-duration: 16s;
+}
+
+.fragment-3 {
+  width: 38px;
+  height: 28px;
+  right: 23%;
+  top: 28%;
+  clip-path: polygon(15% 0, 57% 14%, 82% 0, 100% 46%, 72% 78%, 51% 100%, 21% 75%, 0 37%);
+  animation-delay: -7s;
+  animation-duration: 18s;
+}
+
+.fragment-4 {
+  width: 19px;
+  height: 24px;
+  right: 12%;
+  top: 51%;
+  clip-path: polygon(25% 0, 83% 17%, 100% 54%, 62% 100%, 0 74%, 13% 32%);
+  animation-delay: -3s;
+  animation-duration: 14s;
+}
+
+.fragment-5 {
+  width: 26px;
+  height: 18px;
+  left: 8%;
+  top: 65%;
+  clip-path: polygon(0 24%, 48% 0, 72% 18%, 100% 42%, 75% 100%, 35% 83%, 12% 65%);
+  animation-delay: -6s;
+  animation-duration: 17s;
+}
+
+.fragment-6 {
+  width: 13px;
+  height: 11px;
+  left: 48%;
+  top: 35%;
+  clip-path: polygon(20% 0, 100% 28%, 75% 100%, 0 68%);
+  animation-delay: -2s;
+  animation-duration: 11s;
+}
+
+.fragment-7 {
+  width: 29px;
+  height: 22px;
+  right: 34%;
+  bottom: 17%;
+  clip-path: polygon(0 35%, 27% 0, 62% 15%, 100% 8%, 84% 66%, 53% 100%, 16% 78%);
+  animation-delay: -9s;
+  animation-duration: 19s;
+}
+
+.fragment-8 {
+  width: 15px;
+  height: 13px;
+  right: 7%;
+  top: 20%;
+  clip-path: polygon(14% 0, 71% 12%, 100% 62%, 54% 100%, 0 73%);
+  animation-delay: -4s;
+  animation-duration: 15s;
+}
+
+.fragment-9 {
+  width: 21px;
+  height: 27px;
+  left: 24%;
+  bottom: 15%;
+  clip-path: polygon(34% 0, 100% 22%, 81% 58%, 55% 100%, 12% 77%, 0 29%);
+  animation-delay: -7s;
+  animation-duration: 20s;
+}
+
+.fragment-10 {
+  width: 12px;
+  height: 16px;
+  right: 42%;
+  top: 12%;
+  clip-path: polygon(0 23%, 65% 0, 100% 49%, 55% 100%, 18% 75%);
+  animation-delay: -10s;
+  animation-duration: 13s;
+}
+
+.fragment-11 {
+  width: 33px;
+  height: 22px;
+  left: 57%;
+  bottom: 10%;
+  clip-path: polygon(18% 0, 46% 19%, 82% 4%, 100% 53%, 70% 83%, 30% 100%, 0 55%);
+  animation-delay: -11s;
+  animation-duration: 21s;
+}
+
+.fragment-12 {
+  width: 14px;
+  height: 12px;
+  left: 39%;
+  top: 72%;
+  clip-path: polygon(0 42%, 39% 0, 100% 23%, 81% 100%, 25% 78%);
+  animation-delay: -4s;
+  animation-duration: 12s;
+}
+
+@keyframes asteroid-drift {
+  0% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+  50% {
+    transform: translate3d(7px, -10px, 0) rotate(8deg);
+  }
+  100% {
+    transform: translate3d(-5px, 7px, 0) rotate(-6deg);
+  }
+}
+
+@media (max-width: 768px) {
+  .asteroid-fragment {
+    opacity: 0.55;
+    scale: 0.75;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .asteroid-fragment {
+    animation: none;
+  }
+}

@@ -24,7 +24,7 @@ export function MobileMenu({ links }: { links: readonly NavLink[] }) {
         aria-label="Open menu"
         className="flex size-11 items-center justify-center"
       >
-        <Menu aria-hidden className="size-7" />
+        <Menu aria-hidden className="size-7 hover:cursor-pointer" />
       </button>
 
       <dialog
@@ -40,9 +40,9 @@ export function MobileMenu({ links }: { links: readonly NavLink[] }) {
             type="button"
             onClick={close}
             aria-label="Close menu"
-            className="flex size-11 items-center justify-center"
+            className="flex size-11 cursor-pointer items-center justify-center"
           >
-            <X aria-hidden className="size-7 text-lime" />
+            <X aria-hidden className="size-7 text-lime hover:text-white" />
           </button>
         </div>
 
@@ -53,7 +53,7 @@ export function MobileMenu({ links }: { links: readonly NavLink[] }) {
                 href={link.href}
                 onClick={close}
                 aria-current={link.href === pathname ? "page" : undefined}
-                className={`heading-2 block py-2 transition-colors duration-200 active:text-lime ${
+                className={`heading-2 block py-2 transition-colors duration-200 active:text-lime hover:text-lime-400 ${
                   link.href === pathname ? "text-lime" : ""
                 }`}
               >
@@ -70,7 +70,7 @@ export function MobileMenu({ links }: { links: readonly NavLink[] }) {
           <Link
             href="/login"
             onClick={close}
-            className="label-caps underline underline-offset-8"
+            className="label-caps underline underline-offset-8 hover:text-lime-400"
           >
             Organizer login
           </Link>
