@@ -1,3 +1,4 @@
+
 import { Suspense } from "react";
 import Link from "next/link";
 import { connection } from "next/server";
@@ -36,14 +37,14 @@ export function SiteFooter() {
         </nav>
 
         <div className="md:col-span-2">
-          <p className="label-caps text-stone">Organizers</p>
+          <p className="label-caps text-stone">For Organizers</p>
           <ul className="mt-4 space-y-3">
             <li>
               <Link
                 href="/login"
                 className="underline-offset-8 hover:underline"
               >
-                Log in
+                Organizer Login
               </Link>
             </li>
             <li>
@@ -51,7 +52,7 @@ export function SiteFooter() {
                 href="/signup"
                 className="underline-offset-8 hover:underline"
               >
-                Sign up
+                Organizer Sign Up
               </Link>
             </li>
           </ul>

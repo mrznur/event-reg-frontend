@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { NAV_LINKS, SITE_NAME } from "@/lib/constants";
+import { useSession } from "@/components/auth/session-provider";
 import { CtaLink } from "@/components/shared/cta-link";
 import { Splash } from "@/components/shared/splash";
 import { MobileMenu } from "./mobile-menu";
@@ -37,6 +38,78 @@ function HoverLink({
         />
       )}
     </Link>
+  );
+}
+
+function HoverButton({
+  children,
+  onClick,
+  disabled = false,
+}: {
+  children: React.ReactNode;
+  onClick: () => void;
+  disabled?: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      className="group label-caps relative isolate block cursor-pointer overflow-hidden rounded px-4 py-2.5 disabled:cursor-not-allowed disabled:opacity-60"
+    >
+      <span
+        aria-hidden="true"
+        className="absolute inset-0 -z-10 origin-bottom scale-y-0 bg-lime transition-transform duration-300 ease-out group-hover:scale-y-100 group-focus-visible:scale-y-100"
+      />
+      {children}
+    </button>
+  );
+}
+
+function RegisterLink() {
+  const { status } = useSession();
+
+  // Logged-out visitors can register.
+  if (status === "authenticated") {
+    return null;
+  }
+
+  return <CtaLink href="/events">Event Registration</CtaLink>;
+}
+
+function AuthLinks({ isActive }: { isActive: (href: string) => boolean }) {
+  const router = useRouter();
+  const { status, logout } = useSession();
+  const [pending, setPending] = useState(false);
+
+  async function handleLogout() {
+    setPending(true);
+
+    try {
+      await logout();
+    } catch {
+      // The session is cleared locally either way.
+    }
+
+    setPending(false);
+    router.push("/");
+  }
+
+  // Logged-out visitors see nothing here.
+  if (status !== "authenticated") {
+    return null;
+  }
+
+  return (
+    <>
+      <HoverLink href="/dashboard" active={isActive("/dashboard")}>
+        Dashboard
+      </HoverLink>
+
+      <HoverButton onClick={handleLogout} disabled={pending}>
+        {pending ? "Logging out..." : "Log out"}
+      </HoverButton>
+    </>
   );
 }
 
@@ -109,11 +182,8 @@ export function SiteNav() {
 
         {/* Right-side Actions */}
         <div className="hidden items-center gap-4 md:flex">
-          <HoverLink href="/login" active={isActive("/login")}>
-            Organizer login
-          </HoverLink>
-
-          <CtaLink href="/events">Register</CtaLink>
+          <AuthLinks isActive={isActive} />
+          <RegisterLink />
         </div>
 
         {/* Mobile Navigation */}

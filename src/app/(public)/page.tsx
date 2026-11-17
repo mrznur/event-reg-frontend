@@ -50,9 +50,11 @@ export default function Home() {
           <SlideIn delay={150}>Real people.</SlideIn>
         </h1>
 
-        <CtaLink href="/events" size="lg" className="relative mt-10">
-          Explore events
-        </CtaLink>
+        <div className="mt-8 flex flex-wrap items-center gap-4">
+          <CtaLink href="/events">Register Now!</CtaLink>
+
+          <CtaLink href="/events">Explore Events</CtaLink>
+        </div>
       </div>
     </section>
   );
