@@ -1,5 +1,51 @@
 export type UserRole = "ORGANIZER" | "ADMIN";
 
+// ─── Events ──────────────────────────────────────────────────────────────────
+
+export type EventCategory = "WORKSHOP" | "HACKATHON" | "TALK" | "SOCIAL";
+export type EventStatus = "DRAFT" | "PUBLISHED" | "CANCELLED";
+
+export interface Event {
+    id: string;
+    title: string;
+    slug: string;
+    description: string;
+    category: EventCategory;
+    coverImage: string;
+    venue: string;
+    timezone: string;
+    startsAt: string; // ISO 8601
+    endsAt: string;   // ISO 8601
+    capacity: number;
+    status: EventStatus;
+    registeredCount: number;
+    spotsLeft: number;
+}
+
+export async function getUpcomingEvents(category?: EventCategory): Promise<Event[]> {
+    const params = new URLSearchParams({ upcoming: "true" });
+    if (category) params.set("category", category);
+    const data = await request<{ events: Event[] }>(`/api/events?${params}`);
+    return data.events;
+}
+
+export async function getEventBySlug(slug: string): Promise<Event> {
+    const data = await request<{ event: Event }>(`/api/events/${slug}`);
+    return data.event;
+}
+
+// ─── Stats ───────────────────────────────────────────────────────────────────
+
+export interface SiteStats {
+    events: number;
+    registrations: number;
+    checkedIn: number;
+}
+
+export async function getStats(): Promise<SiteStats> {
+    return request<SiteStats>("/api/stats");
+}
+
 export interface User {
     id: string;
     name: string;
@@ -24,6 +70,16 @@ type RequestOptions = {
     body?: unknown;
 };
 
+function resolveUrl(path: string): string {
+    // Server-side: Node.js has no origin, so prepend the backend URL directly.
+    // Client-side: relative path works via the Next.js rewrite proxy.
+    if (typeof window === "undefined") {
+        const base = process.env.API_URL ?? "http://localhost:4000";
+        return `${base}${path}`;
+    }
+    return path;
+}
+
 async function request<T>(
     path: string,
     { method = "GET", body }: RequestOptions = {},
@@ -31,7 +87,7 @@ async function request<T>(
     let res: Response;
 
     try {
-        res = await fetch(path, {
+        res = await fetch(resolveUrl(path), {
             method,
             headers: body === undefined ? undefined : { "Content-Type": "application/json" },
             body: body === undefined ? undefined : JSON.stringify(body),

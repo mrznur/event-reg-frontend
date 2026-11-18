@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { SessionProvider } from "@/components/auth/session-provider";
 import { SiteNav } from "@/components/layout/site-nav";
 import { SiteFooter } from "@/components/layout/site-footer";
@@ -15,7 +16,9 @@ export default function PublicLayout({
       >
         Skip to content
       </a>
-      <SiteNav />
+      <Suspense fallback={<div className="h-16 border-b border-ink/15 bg-paper md:h-20" />}>
+        <SiteNav />
+      </Suspense>
       <main id="main">{children}</main>
       <SiteFooter />
     </SessionProvider>

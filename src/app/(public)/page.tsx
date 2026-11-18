@@ -1,5 +1,6 @@
 import { CtaLink } from "@/components/shared/cta-link";
 import { SlideIn } from "@/components/motion/reveal";
+import { BtnSecond, PlainButton } from "@/components/shared/btn-second";
 
 export default function Home() {
   return (
@@ -43,7 +44,6 @@ export default function Home() {
 
       {/* Hero content */}
       <div className="mx-auto max-w-[1440px] px-4 py-24 md:px-6 md:py-36 lg:px-8">
-        <p className="label-caps text-stone-text text-lg">BUCC</p>
 
         <h1 className="display-xl relative mt-4 max-w-4xl">
           <SlideIn>Big ideas.</SlideIn>{" "}
@@ -51,10 +51,10 @@ export default function Home() {
         </h1>
 
         <div className="mt-8 flex flex-wrap items-center gap-4">
-          <CtaLink href="/events">Register Now!</CtaLink>
-
-          <CtaLink href="/events">Explore Events</CtaLink>
+          <CtaLink href="/signup">Register Now!</CtaLink>
+          <BtnSecond href="/events">Explore Events</BtnSecond>
         </div>
+
       </div>
     </section>
   );

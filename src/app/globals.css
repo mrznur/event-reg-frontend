@@ -40,8 +40,8 @@ body {
 }
 
 @utility display-xl {
-  font-size: clamp(3.5rem, 11vw, 10rem);
-  font-weight: 800;
+  font-size: clamp(2.5rem, 9vw, 7rem);
+  font-weight: 700;
   line-height: 0.9;
   letter-spacing: -0.04em;
   text-transform: uppercase;
