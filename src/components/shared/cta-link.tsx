@@ -23,7 +23,7 @@ export function CtaLink({
       href={href}
       onClick={onClick}
       className={`
-        group inline-flex items-center gap-3
+        group inline-flex items-center gap-3 rounded-sm
         bg-lime font-semibold uppercase tracking-wider text-ink
         transition duration-300
         active:translate-y-px hover:bg-lime-400
