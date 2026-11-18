@@ -46,6 +46,22 @@ export async function getStats(): Promise<SiteStats> {
     return request<SiteStats>("/api/stats");
 }
 
+// ─── Gallery ─────────────────────────────────────────────────────────────────
+
+export interface GalleryImage {
+    id: string;
+    title: string;
+    url: string;
+    caption: string;
+    eventId: string;
+    createdAt: string;
+}
+
+export async function getGallery(): Promise<GalleryImage[]> {
+    const data = await request<{ images: GalleryImage[] }>("/api/gallery");
+    return data.images;
+}
+
 export interface User {
     id: string;
     name: string;

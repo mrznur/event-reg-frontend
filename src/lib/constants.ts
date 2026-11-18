@@ -2,8 +2,10 @@ export const SITE_NAME = "BUCC";
 
 export const NAV_LINKS = [
     { href: "/events", label: "Events" },
+    { href: "/gallery", label: "Gallery" },
     { href: "/#about", label: "About" },
     { href: "/#impact", label: "Impact" },
+    { href: "/#contact", label: "Contact" },
 ] as const;
 
 export const EVENT_CATEGORIES = [

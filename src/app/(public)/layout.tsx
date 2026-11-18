@@ -16,7 +16,7 @@ export default function PublicLayout({
       >
         Skip to content
       </a>
-      <Suspense fallback={<div className="h-16 border-b border-ink/15 bg-paper md:h-20" />}>
+      <Suspense fallback={null}>
         <SiteNav />
       </Suspense>
       <main id="main">{children}</main>

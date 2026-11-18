@@ -13,28 +13,32 @@ function HoverLink({
   href,
   children,
   active = false,
+  transparent = false,
 }: {
   href: string;
   children: React.ReactNode;
   active?: boolean;
+  transparent?: boolean;
 }) {
   return (
     <Link
       href={href}
       aria-current={active ? "page" : undefined}
-      className="group label-caps relative isolate block overflow-hidden rounded px-4 py-2.5"
+      className={`group label-caps relative isolate block overflow-hidden rounded px-4 py-2.5 transition-colors duration-300 ${
+        transparent ? "text-paper/90" : "text-ink"
+      }`}
     >
       <span
         aria-hidden="true"
         className="absolute inset-0 -z-10 origin-bottom scale-y-0 bg-lime transition-transform duration-300 ease-out group-hover:scale-y-100 group-focus-visible:scale-y-100"
       />
-
-      {children}
-
+      <span className="relative group-hover:text-ink transition-colors duration-300">
+        {children}
+      </span>
       {active && (
         <span
           aria-hidden="true"
-          className="absolute inset-x-4 bottom-1 h-[3px] bg-ink"
+          className={`absolute inset-x-4 bottom-1 h-[3px] ${transparent ? "bg-lime" : "bg-ink"}`}
         />
       )}
     </Link>
@@ -45,68 +49,73 @@ function HoverButton({
   children,
   onClick,
   disabled = false,
+  transparent = false,
 }: {
   children: React.ReactNode;
   onClick: () => void;
   disabled?: boolean;
+  transparent?: boolean;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className="group label-caps relative isolate block cursor-pointer overflow-hidden rounded px-4 py-2.5 disabled:cursor-not-allowed disabled:opacity-60"
+      className={`group label-caps relative isolate block cursor-pointer overflow-hidden rounded px-4 py-2.5 transition-colors duration-300 disabled:cursor-not-allowed disabled:opacity-60 ${
+        transparent ? "text-paper/90" : "text-ink"
+      }`}
     >
       <span
         aria-hidden="true"
         className="absolute inset-0 -z-10 origin-bottom scale-y-0 bg-lime transition-transform duration-300 ease-out group-hover:scale-y-100 group-focus-visible:scale-y-100"
       />
-      {children}
+      <span className="relative group-hover:text-ink transition-colors duration-300">
+        {children}
+      </span>
     </button>
   );
 }
 
-function RegisterLink() {
+function RegisterLink({ scrolled }: { scrolled: boolean }) {
   const { status } = useSession();
-
-  // Logged-out visitors can register.
-  if (status === "authenticated") {
-    return null;
-  }
-
-  return <CtaLink href="/events">Event Registration</CtaLink>;
+  if (status === "authenticated") return null;
+  return (
+    <CtaLink href="/events" className={!scrolled ? "bg-lime/90" : ""}>
+      Event Registration
+    </CtaLink>
+  );
 }
 
-function AuthLinks({ isActive }: { isActive: (href: string) => boolean }) {
+function AuthLinks({
+  isActive,
+  scrolled,
+}: {
+  isActive: (href: string) => boolean;
+  scrolled: boolean;
+}) {
   const router = useRouter();
   const { status, logout } = useSession();
   const [pending, setPending] = useState(false);
 
   async function handleLogout() {
     setPending(true);
-
     try {
       await logout();
     } catch {
-      // The session is cleared locally either way.
+      // session is cleared locally either way
     }
-
     setPending(false);
     router.push("/");
   }
 
-  // Logged-out visitors see nothing here.
-  if (status !== "authenticated") {
-    return null;
-  }
+  if (status !== "authenticated") return null;
 
   return (
     <>
-      <HoverLink href="/dashboard" active={isActive("/dashboard")}>
+      <HoverLink href="/dashboard" active={isActive("/dashboard")} transparent={!scrolled}>
         Dashboard
       </HoverLink>
-
-      <HoverButton onClick={handleLogout} disabled={pending}>
+      <HoverButton onClick={handleLogout} disabled={pending} transparent={!scrolled}>
         {pending ? "Logging out..." : "Log out"}
       </HoverButton>
     </>
@@ -115,22 +124,54 @@ function AuthLinks({ isActive }: { isActive: (href: string) => boolean }) {
 
 export function SiteNav() {
   const pathname = usePathname();
-
   const [hydratedPathname, setHydratedPathname] = useState<string | null>(null);
-  const [hash, setHash] = useState("");
+  const [activeSection, setActiveSection] = useState<string>("");
+  const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
-    const updateLocation = () => {
-      setHydratedPathname(pathname);
-      setHash(window.location.hash);
+    setHydratedPathname(window.location.pathname);
+  }, [pathname]);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 10);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  // Watch anchor sections on the homepage
+  useEffect(() => {
+    if (window.location.pathname !== "/") return;
+
+    const sectionIds = NAV_LINKS
+      .filter((l) => l.href.startsWith("/#"))
+      .map((l) => l.href.slice(2)); // "about", "impact"
+
+    const observers: IntersectionObserver[] = [];
+
+    sectionIds.forEach((id) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+
+      const obs = new IntersectionObserver(
+        ([entry]) => {
+          if (entry.isIntersecting) setActiveSection(id);
+        },
+        { rootMargin: "-40% 0px -55% 0px", threshold: 0 }
+      );
+      obs.observe(el);
+      observers.push(obs);
+    });
+
+    // When scrolled back to top, clear active section
+    const onScroll = () => {
+      if (window.scrollY < 100) setActiveSection("");
     };
-
-    updateLocation();
-
-    window.addEventListener("hashchange", updateLocation);
+    window.addEventListener("scroll", onScroll, { passive: true });
 
     return () => {
-      window.removeEventListener("hashchange", updateLocation);
+      observers.forEach((o) => o.disconnect());
+      window.removeEventListener("scroll", onScroll);
     };
   }, [pathname]);
 
@@ -138,23 +179,24 @@ export function SiteNav() {
 
   const isActive = (href: string) => {
     if (!hydratedPathname) return false;
-
-    // Handle homepage anchor links.
     if (href.startsWith("/#")) {
-      return hydratedPathname === "/" && hash === href.slice(1);
+      return hydratedPathname === "/" && activeSection === href.slice(2);
     }
-
-    // Handle Home.
-    if (href === "/") {
-      return hydratedPathname === "/" && !hash;
-    }
-
-    // Handle regular and nested routes.
+    if (href === "/") return hydratedPathname === "/" && activeSection === "";
     return hydratedPathname === href || hydratedPathname.startsWith(`${href}/`);
   };
 
   return (
-    <header className="sticky top-0 z-40 border-b border-ink/15 bg-paper">
+    <header
+      className={`
+        fixed left-0 right-0 top-0 z-40
+        transition-all duration-300 ease-out
+        ${scrolled
+          ? "border-b border-ink/15 bg-paper/95 backdrop-blur-sm"
+          : "border-b border-transparent bg-gradient-to-b from-ink/50 to-transparent backdrop-blur-none"
+        }
+      `}
+    >
       <nav
         aria-label="Main"
         className="mx-auto flex h-16 max-w-[1440px] items-center justify-between px-4 md:h-20 md:px-6 lg:px-8"
@@ -163,9 +205,13 @@ export function SiteNav() {
         <Link
           href="/"
           aria-label={`${SITE_NAME} home`}
-          className="group relative isolate px-5 py-2 text-2xl font-extrabold uppercase tracking-tighter text-paper"
+          className={`group relative isolate px-5 py-2 text-2xl font-extrabold uppercase tracking-tighter transition-colors duration-300 ${
+            scrolled ? "text-paper" : "text-paper"
+          }`}
         >
-          <Splash className="absolute left-1/2 top-1/2 -z-10 w-32 -translate-x-1/2 -translate-y-1/2 -rotate-3 text-ink transition-transform duration-300 ease-out group-hover:-rotate-6 group-hover:scale-110 md:w-36" />
+          <Splash className={`absolute left-1/2 top-1/2 -z-10 w-32 -translate-x-1/2 -translate-y-1/2 -rotate-3 transition-all duration-300 ease-out group-hover:-rotate-6 group-hover:scale-110 md:w-36 ${
+            scrolled ? "text-ink" : "text-white/20"
+          }`} />
           {SITE_NAME}
         </Link>
 
@@ -173,7 +219,7 @@ export function SiteNav() {
         <ul className="hidden items-center gap-2 md:flex">
           {links.map((link) => (
             <li key={link.href}>
-              <HoverLink href={link.href} active={isActive(link.href)}>
+              <HoverLink href={link.href} active={isActive(link.href)} transparent={!scrolled}>
                 {link.label}
               </HoverLink>
             </li>
@@ -182,8 +228,8 @@ export function SiteNav() {
 
         {/* Right-side Actions */}
         <div className="hidden items-center gap-4 md:flex">
-          <AuthLinks isActive={isActive} />
-          <RegisterLink />
+          <AuthLinks isActive={isActive} scrolled={scrolled} />
+          <RegisterLink scrolled={scrolled} />
         </div>
 
         {/* Mobile Navigation */}

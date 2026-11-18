@@ -77,7 +77,7 @@ export function MobileMenu({ links }: { links: readonly NavLink[] }) {
         aria-label="Open menu"
         className="flex size-11 cursor-pointer items-center justify-center"
       >
-        <Menu aria-hidden className="size-7" />
+        <Menu aria-hidden className="size-7 text-paper" />
       </button>
 
       <dialog
