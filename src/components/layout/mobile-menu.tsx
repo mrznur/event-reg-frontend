@@ -10,7 +10,7 @@ import { usePathname, useRouter } from "next/navigation";
 
 type NavLink = { href: string; label: string };
 
-export function MobileMenu({ links }: { links: readonly NavLink[] }) {
+export function MobileMenu({ links, scrolled }: { links: readonly NavLink[]; scrolled: boolean }) {
   const pathname = usePathname();
   const router = useRouter();
   const { status, logout } = useSession();
@@ -77,7 +77,7 @@ export function MobileMenu({ links }: { links: readonly NavLink[] }) {
         aria-label="Open menu"
         className="flex size-11 cursor-pointer items-center justify-center"
       >
-        <Menu aria-hidden className="size-7 text-paper" />
+        <Menu aria-hidden className={`size-7 transition-colors duration-300 ${scrolled ? "text-ink" : "text-paper"}`} />
       </button>
 
       <dialog

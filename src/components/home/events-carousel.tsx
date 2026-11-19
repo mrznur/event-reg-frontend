@@ -7,6 +7,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import type { Event } from "@/lib/api";
+import { isAllowedImageHost } from "@/lib/events";
 
 interface Props {
     events: Event[];
@@ -37,9 +38,7 @@ export function EventsCarousel({ events }: Props) {
             <div ref={emblaRef} className="overflow-hidden">
                 <div className="flex">
                     {events.map((event, i) => {
-                        const isPicsum =
-                            event.coverImage.includes("picsum.photos") ||
-                            event.coverImage.includes("fastly.picsum.photos");
+                        const isPicsum = isAllowedImageHost(event.coverImage);
 
                         return (
                             <div
@@ -78,7 +77,7 @@ export function EventsCarousel({ events }: Props) {
                                     </p>
                                     <Link
                                         href={`/events/${event.slug}`}
-                                        className="group inline-flex items-center gap-3 rounded-sm bg-lime px-6 py-3 text-sm font-semibold uppercase tracking-wider text-ink transition duration-300 hover:bg-lime/80 active:translate-y-px"
+                                        className="group inline-flex items-center gap-3 rounded-sm bg-lime px-6 py-3 text-sm font-semibold uppercase tracking-wider text-ink transition duration-300 hover:bg-lime-400 active:translate-y-px"
                                     >
                                         View event
                                         <ArrowRight aria-hidden className="size-4 transition-transform duration-300 group-hover:translate-x-1" />

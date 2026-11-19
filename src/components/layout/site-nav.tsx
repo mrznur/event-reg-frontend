@@ -193,7 +193,7 @@ export function SiteNav() {
         transition-all duration-300 ease-out
         ${scrolled
           ? "border-b border-ink/15 bg-paper/95 backdrop-blur-sm"
-          : "border-b border-transparent bg-gradient-to-b from-ink/50 to-transparent backdrop-blur-none"
+          : " border-transparent bg-gradient-to-b from-ink to-transparent backdrop-blur-none"
         }
       `}
     >
@@ -233,7 +233,7 @@ export function SiteNav() {
         </div>
 
         {/* Mobile Navigation */}
-        <MobileMenu links={links} />
+        <MobileMenu links={links} scrolled={scrolled} />
       </nav>
     </header>
   );

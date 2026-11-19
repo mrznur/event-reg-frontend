@@ -1,28 +1,11 @@
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import Image from "next/image";
-import { Calendar, MapPin, Users } from "lucide-react";
+import Link from "next/link";
+import { Calendar, MapPin, Users, ArrowRight } from "lucide-react";
 import { getEventBySlug, ApiError } from "@/lib/api";
+import { canRegister, categoryLabel, formatDateLong, isAllowedImageHost } from "@/lib/events";
 import { AvailabilityChip } from "@/components/events/availability-chip";
-
-const CATEGORY_LABELS: Record<string, string> = {
-    WORKSHOP: "Workshop",
-    HACKATHON: "Hackathon",
-    TALK: "Talk",
-    SOCIAL: "Social",
-};
-
-function formatDate(iso: string, timezone: string): string {
-    return new Date(iso).toLocaleDateString("en-GB", {
-        timeZone: timezone,
-        weekday: "long",
-        day: "numeric",
-        month: "long",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-    });
-}
 
 interface Props {
     params: Promise<{ slug: string }>;
@@ -41,9 +24,7 @@ async function EventDetail({ params }: { params: Promise<{ slug: string }> }) {
         throw err;
     }
 
-    const isPicsumHost =
-        event.coverImage.includes("picsum.photos") ||
-        event.coverImage.includes("fastly.picsum.photos");
+    const isPicsumHost = isAllowedImageHost(event.coverImage);
 
     return (
         <div className="grid gap-10 lg:grid-cols-[1fr_380px]">
@@ -73,7 +54,7 @@ async function EventDetail({ params }: { params: Promise<{ slug: string }> }) {
                 {/* Category + chip */}
                 <div className="mb-4 flex flex-wrap items-center gap-3">
                     <span className="label-caps text-stone-text">
-                        {CATEGORY_LABELS[event.category] ?? event.category}
+                        {categoryLabel(event.category)}
                     </span>
                     <AvailabilityChip event={event} showSpots />
                 </div>
@@ -100,11 +81,11 @@ async function EventDetail({ params }: { params: Promise<{ slug: string }> }) {
                         <dd className="text-sm">
                             <span className="block font-semibold">Starts</span>
                             <time dateTime={event.startsAt} className="text-stone-text">
-                                {formatDate(event.startsAt, event.timezone)}
+                                {formatDateLong(event.startsAt, event.timezone)}
                             </time>
                             <span className="mt-1 block font-semibold">Ends</span>
                             <time dateTime={event.endsAt} className="text-stone-text">
-                                {formatDate(event.endsAt, event.timezone)}
+                                {formatDateLong(event.endsAt, event.timezone)}
                             </time>
                         </dd>
                     </div>
@@ -128,9 +109,26 @@ async function EventDetail({ params }: { params: Promise<{ slug: string }> }) {
                     </div>
                 </dl>
 
-                {/* Register CTA — placeholder until registration feature is built */}
+                {/* Register CTA */}
                 <div className="mt-8">
-                    <AvailabilityChip event={event} showSpots />
+                    {canRegister(event) ? (
+                        <Link
+                            href={`/events/${event.slug}/register`}
+                            className="group label-caps inline-flex w-full items-center justify-center gap-3 bg-lime px-6 py-3.5 text-ink transition duration-300 hover:bg-lime/80 active:translate-y-px"
+                        >
+                            Register now
+                            <ArrowRight aria-hidden className="size-4 transition-transform duration-300 group-hover:translate-x-1" />
+                        </Link>
+                    ) : (
+                        <div className="border border-ink/10 p-4 text-center">
+                            <AvailabilityChip event={event} showSpots />
+                            <p className="mt-2 text-sm text-stone-text">
+                                {event.spotsLeft === 0
+                                    ? "This event is fully booked."
+                                    : "Registrations for this event are closed."}
+                            </p>
+                        </div>
+                    )}
                 </div>
             </aside>
         </div>

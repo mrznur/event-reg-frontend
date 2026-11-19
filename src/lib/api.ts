@@ -62,6 +62,23 @@ export async function getGallery(): Promise<GalleryImage[]> {
     return data.images;
 }
 
+// ─── Registrations ───────────────────────────────────────────────────────────
+
+export interface Ticket {
+    code: string;
+}
+
+export async function registerForEvent(
+    slug: string,
+    input: { name: string; email: string; phone: string },
+): Promise<Ticket> {
+    const data = await request<{ ticket: Ticket }>(`/api/events/${slug}/register`, {
+        method: "POST",
+        body: input,
+    });
+    return data.ticket;
+}
+
 export interface User {
     id: string;
     name: string;

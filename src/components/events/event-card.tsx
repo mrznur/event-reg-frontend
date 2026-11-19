@@ -2,34 +2,15 @@ import Image from "next/image";
 import Link from "next/link";
 import { Calendar, MapPin } from "lucide-react";
 import type { Event } from "@/lib/api";
+import { categoryLabel, formatDate, isAllowedImageHost } from "@/lib/events";
 import { AvailabilityChip } from "./availability-chip";
-
-const CATEGORY_LABELS: Record<string, string> = {
-    WORKSHOP: "Workshop",
-    HACKATHON: "Hackathon",
-    TALK: "Talk",
-    SOCIAL: "Social",
-};
-
-function formatDate(iso: string, timezone: string): string {
-    return new Date(iso).toLocaleDateString("en-GB", {
-        timeZone: timezone,
-        day: "numeric",
-        month: "short",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-    });
-}
 
 interface Props {
     event: Event;
 }
 
 export function EventCard({ event }: Props) {
-    const isPicsumHost =
-        event.coverImage.includes("picsum.photos") ||
-        event.coverImage.includes("fastly.picsum.photos");
+    const isPicsumHost = isAllowedImageHost(event.coverImage);
 
     return (
         <article className="group relative flex flex-col overflow-hidden border border-ink/10 bg-paper transition-shadow duration-300 hover:shadow-lg">
@@ -58,7 +39,7 @@ export function EventCard({ event }: Props) {
                 {/* Category + chip row */}
                 <div className="flex items-center justify-between gap-2">
                     <span className="label-caps text-stone-text">
-                        {CATEGORY_LABELS[event.category] ?? event.category}
+                        {categoryLabel(event.category)}
                     </span>
                     <AvailabilityChip event={event} showSpots />
                 </div>
