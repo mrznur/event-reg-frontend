@@ -14,8 +14,8 @@ export interface Event {
     coverImage: string;
     venue: string;
     timezone: string;
-    startsAt: string; // ISO 8601
-    endsAt: string;   // ISO 8601
+    startsAt: string;
+    endsAt: string;
     capacity: number;
     status: EventStatus;
     registeredCount: number;
@@ -46,23 +46,7 @@ export async function getStats(): Promise<SiteStats> {
     return request<SiteStats>("/api/stats");
 }
 
-// ─── Gallery ─────────────────────────────────────────────────────────────────
-
-export interface GalleryImage {
-    id: string;
-    title: string;
-    url: string;
-    caption: string;
-    eventId: string;
-    createdAt: string;
-}
-
-export async function getGallery(): Promise<GalleryImage[]> {
-    const data = await request<{ images: GalleryImage[] }>("/api/gallery");
-    return data.images;
-}
-
-// ─── Registrations ───────────────────────────────────────────────────────────
+// ─── Registrations (public) ──────────────────────────────────────────────────
 
 export interface Ticket {
     code: string;
@@ -78,6 +62,117 @@ export async function registerForEvent(
     });
     return data.ticket;
 }
+
+// ─── Dashboard — organizer events ────────────────────────────────────────────
+
+export interface OrganizerEvent extends Event {
+    organizerId: string;
+}
+
+export type CreateEventInput = {
+    title: string;
+    description: string;
+    category: EventCategory;
+    coverImage: string;
+    venue: string;
+    timezone: string;
+    startsAt: string;
+    endsAt: string;
+    capacity: number;
+};
+
+export async function getMyEvents(): Promise<OrganizerEvent[]> {
+    const data = await request<{ events: OrganizerEvent[] }>("/api/organizer/events");
+    return data.events;
+}
+
+export async function getMyEventById(id: string): Promise<OrganizerEvent> {
+    const data = await request<{ event: OrganizerEvent }>(`/api/organizer/events/${id}`);
+    return data.event;
+}
+
+export async function createEvent(input: CreateEventInput): Promise<OrganizerEvent> {
+    const data = await request<{ event: OrganizerEvent }>("/api/organizer/events", {
+        method: "POST",
+        body: input,
+    });
+    return data.event;
+}
+
+export async function updateEvent(id: string, input: Partial<CreateEventInput>): Promise<OrganizerEvent> {
+    const data = await request<{ event: OrganizerEvent }>(`/api/organizer/events/${id}`, {
+        method: "PATCH",
+        body: input,
+    });
+    return data.event;
+}
+
+export async function publishEvent(id: string): Promise<OrganizerEvent> {
+    const data = await request<{ event: OrganizerEvent }>(`/api/organizer/events/${id}/publish`, {
+        method: "PATCH",
+    });
+    return data.event;
+}
+
+export async function unpublishEvent(id: string): Promise<OrganizerEvent> {
+    const data = await request<{ event: OrganizerEvent }>(`/api/organizer/events/${id}/unpublish`, {
+        method: "PATCH",
+    });
+    return data.event;
+}
+
+export async function cancelEvent(id: string): Promise<OrganizerEvent> {
+    const data = await request<{ event: OrganizerEvent }>(`/api/organizer/events/${id}/cancel`, {
+        method: "PATCH",
+    });
+    return data.event;
+}
+
+// ─── Dashboard — registrations ───────────────────────────────────────────────
+
+export interface Registration {
+    id: string;
+    eventId: string;
+    name: string;
+    email: string;
+    phone: string;
+    ticketCode: string;
+    status: "CONFIRMED" | "CHECKED_IN" | "CANCELLED";
+    checkedInAt: string | null;
+    createdAt: string;
+}
+
+export async function getRegistrations(eventId: string): Promise<Registration[]> {
+    const data = await request<{ registrations: Registration[] }>(
+        `/api/organizer/events/${eventId}/registrations`,
+    );
+    return data.registrations;
+}
+
+// ─── Dashboard — check-in ────────────────────────────────────────────────────
+
+export interface CheckInResult {
+    ok: boolean;
+    registration: Registration;
+}
+
+export async function checkInByCode(eventId: string, ticketCode: string): Promise<CheckInResult> {
+    const data = await request<CheckInResult>(`/api/organizer/events/${eventId}/check-in`, {
+        method: "POST",
+        body: { ticketCode },
+    });
+    return data;
+}
+
+export async function checkInBySearch(eventId: string, query: string): Promise<Registration[]> {
+    const params = new URLSearchParams({ q: query });
+    const data = await request<{ registrations: Registration[] }>(
+        `/api/organizer/events/${eventId}/registrations?${params}`,
+    );
+    return data.registrations;
+}
+
+// ─── Auth ─────────────────────────────────────────────────────────────────────
 
 export interface User {
     id: string;
@@ -104,8 +199,6 @@ type RequestOptions = {
 };
 
 function resolveUrl(path: string): string {
-    // Server-side: Node.js has no origin, so prepend the backend URL directly.
-    // Client-side: relative path works via the Next.js rewrite proxy.
     if (typeof window === "undefined") {
         const base = process.env.API_URL ?? "http://localhost:4000";
         return `${base}${path}`;
@@ -199,7 +292,6 @@ export async function logout(): Promise<void> {
     await request<{ ok: boolean }>("/api/auth/logout", { method: "POST" });
 }
 
-// A 401 here means "logged out", so it returns null instead of throwing.
 export async function getMe(): Promise<User | null> {
     try {
         const data = await request<{ user: User }>("/api/auth/me");
