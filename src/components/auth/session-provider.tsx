@@ -14,6 +14,8 @@ import {
   login as apiLogin,
   logout as apiLogout,
   signup as apiSignup,
+  verifySignup as apiVerify,
+  resendCode as apiResend,
   type User,
 } from "@/lib/api";
 
@@ -27,7 +29,9 @@ interface SessionContextValue {
     name: string;
     email: string;
     password: string;
-  }) => Promise<User>;
+  }) => Promise<void>;
+  verifySignup: (input: { email: string; code: string }) => Promise<User>;
+  resendCode: (input: { email: string }) => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -69,10 +73,25 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 
   const signup = useCallback(
     async (input: { name: string; email: string; password: string }) => {
-      const me = await apiSignup(input);
+      await apiSignup(input);
+      // Does NOT auto-login — user must verify their email first
+    },
+    [],
+  );
+
+  const verifySignup = useCallback(
+    async (input: { email: string; code: string }) => {
+      const me = await apiVerify(input);
       setUser(me);
       setStatus("authenticated");
       return me;
+    },
+    [],
+  );
+
+  const resendCode = useCallback(
+    async (input: { email: string }) => {
+      await apiResend(input);
     },
     [],
   );
@@ -87,8 +106,8 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value = useMemo(
-    () => ({ user, status, login, signup, logout }),
-    [user, status, login, signup, logout],
+    () => ({ user, status, login, signup, verifySignup, resendCode, logout }),
+    [user, status, login, signup, verifySignup, resendCode, logout],
   );
 
   return (

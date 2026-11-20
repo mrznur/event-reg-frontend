@@ -80,6 +80,7 @@ export function LoginForm() {
         label="Email"
         type="email"
         autoComplete="email"
+        placeholder="you@example.com"
         error={fieldErrors.email}
       />
 
@@ -88,6 +89,7 @@ export function LoginForm() {
         label="Password"
         type="password"
         autoComplete="current-password"
+        placeholder="Your password"
         error={fieldErrors.password}
       />
 

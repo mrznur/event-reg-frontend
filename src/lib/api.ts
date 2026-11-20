@@ -157,12 +157,31 @@ export async function signup(input: {
     name: string;
     email: string;
     password: string;
+}): Promise<void> {
+    await request<{ ok: boolean }>("/api/auth/signup", {
+        method: "POST",
+        body: input,
+    });
+}
+
+export async function verifySignup(input: {
+    email: string;
+    code: string;
 }): Promise<User> {
-    const data = await request<{ user: User }>("/api/auth/signup", {
+    const data = await request<{ user: User }>("/api/auth/verify", {
         method: "POST",
         body: input,
     });
     return data.user;
+}
+
+export async function resendCode(input: {
+    email: string;
+}): Promise<void> {
+    await request<{ ok: boolean }>("/api/auth/resend", {
+        method: "POST",
+        body: input,
+    });
 }
 
 export async function login(input: {

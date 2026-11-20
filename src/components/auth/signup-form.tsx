@@ -1,128 +1,280 @@
 "use client";
 
-import { useEffect, useState, type FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { Mail } from "lucide-react";
 import * as z from "zod";
 import { ApiError } from "@/lib/api";
 import { useSession } from "@/components/auth/session-provider";
 import { FormField } from "@/components/shared/form-field";
 
 const signupSchema = z.object({
-  name: z
-    .string()
-    .min(2, { error: "Enter your name (at least 2 characters)." })
-    .max(80, { error: "Name must be 80 characters or fewer." }),
-  email: z.email({ error: "Enter a valid email address." }),
-  password: z
-    .string()
-    .min(8, { error: "Password must be at least 8 characters." })
-    .max(72, { error: "Password must be 72 characters or fewer." }),
+    name: z
+        .string()
+        .min(2, { error: "Enter your name (at least 2 characters)." })
+        .max(80, { error: "Name must be 80 characters or fewer." }),
+    email: z.email({ error: "Enter a valid email address." }),
+    password: z
+        .string()
+        .min(8, { error: "Password must be at least 8 characters." })
+        .max(72, { error: "Password must be 72 characters or fewer." }),
 });
+
+const codeSchema = z.string().length(6, { error: "Enter the 6-digit code." });
 
 type FieldErrors = { name?: string; email?: string; password?: string };
 
 export function SignupForm() {
-  const router = useRouter();
-  const { status, signup } = useSession();
-  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
-  const [formErrors, setFormErrors] = useState<string[]>([]);
-  const [pending, setPending] = useState(false);
+    const router = useRouter();
+    const { signup, verifySignup, resendCode } = useSession();
 
-  // Covers both a fresh signup and someone who is already logged in.
-  useEffect(() => {
-    if (status === "authenticated") {
-      router.replace("/");
+    // Step state: "form" → "verify" → done
+    const [step, setStep] = useState<"form" | "verify" | "expired">("form");
+    const [email, setEmail] = useState("");
+
+    // Form step state
+    const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
+    const [formErrors, setFormErrors] = useState<string[]>([]);
+    const [pending, setPending] = useState(false);
+
+    // Verify step state
+    const [code, setCode] = useState("");
+    const [codeError, setCodeError] = useState<string | null>(null);
+    const [verifyPending, setVerifyPending] = useState(false);
+    const [resendPending, setResendPending] = useState(false);
+    const [resendMsg, setResendMsg] = useState<string | null>(null);
+
+    async function handleSignup(event: FormEvent<HTMLFormElement>) {
+        event.preventDefault();
+
+        const data = new FormData(event.currentTarget);
+        const input = {
+            name: String(data.get("name") ?? "").trim(),
+            email: String(data.get("email") ?? "").trim(),
+            password: String(data.get("password") ?? ""),
+        };
+
+        const result = signupSchema.safeParse(input);
+        if (!result.success) {
+            const flat = z.flattenError(result.error).fieldErrors;
+            setFieldErrors({
+                name: flat.name?.[0],
+                email: flat.email?.[0],
+                password: flat.password?.[0],
+            });
+            setFormErrors([]);
+            return;
+        }
+
+        setFieldErrors({});
+        setFormErrors([]);
+        setPending(true);
+
+        try {
+            await signup(result.data);
+            setEmail(result.data.email);
+            setStep("verify");
+        } catch (error) {
+            setFormErrors(
+                error instanceof ApiError
+                    ? error.messages
+                    : ["Something went wrong. Please try again."],
+            );
+        }
+
+        setPending(false);
     }
-  }, [status, router]);
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+    async function handleVerify(event: FormEvent<HTMLFormElement>) {
+        event.preventDefault();
 
-    const data = new FormData(event.currentTarget);
-    const input = {
-      name: String(data.get("name") ?? "").trim(),
-      email: String(data.get("email") ?? "").trim(),
-      password: String(data.get("password") ?? ""),
-    };
+        const codeResult = codeSchema.safeParse(code.trim());
+        if (!codeResult.success) {
+            setCodeError(codeResult.error.message);
+            return;
+        }
 
-    const result = signupSchema.safeParse(input);
-    if (!result.success) {
-      const flat = z.flattenError(result.error).fieldErrors;
-      setFieldErrors({
-        name: flat.name?.[0],
-        email: flat.email?.[0],
-        password: flat.password?.[0],
-      });
-      setFormErrors([]);
-      return;
+        setCodeError(null);
+        setVerifyPending(true);
+
+        try {
+            await verifySignup({ email, code: code.trim() });
+            router.push("/dashboard");
+        } catch (error) {
+            const msg =
+                error instanceof ApiError
+                    ? error.messages[0]
+                    : "Something went wrong. Please try again.";
+
+            // Expired code — user needs to start over
+            if (msg.toLowerCase().includes("expired")) {
+                setStep("expired");
+            } else {
+                setCodeError(msg);
+            }
+        }
+
+        setVerifyPending(false);
     }
 
-    setFieldErrors({});
-    setFormErrors([]);
-    setPending(true);
+    async function handleResend() {
+        setResendPending(true);
+        setResendMsg(null);
 
-    try {
-      await signup(result.data);
-    } catch (error) {
-      setFormErrors(
-        error instanceof ApiError
-          ? error.messages
-          : ["Something went wrong. Please try again."],
-      );
-      setPending(false);
+        try {
+            await resendCode({ email });
+            setResendMsg("A new code has been sent to your email.");
+        } catch (error) {
+            setResendMsg(
+                error instanceof ApiError
+                    ? error.messages[0]
+                    : "Could not resend code. Please try again.",
+            );
+        }
+
+        setResendPending(false);
     }
-  }
 
-  return (
-    <form onSubmit={handleSubmit} noValidate className="max-w-md space-y-6">
-      {formErrors.length > 0 && (
-        <div role="alert" className="border border-error px-4 py-3 text-error">
-          {formErrors.map((message) => (
-            <p key={message}>{message}</p>
-          ))}
-        </div>
-      )}
+    // ─── Expired code state ────────────────────────────────────────────────
 
-      <FormField
-        name="name"
-        label="Full name"
-        type="text"
-        autoComplete="name"
-        error={fieldErrors.name}
-      />
+    if (step === "expired") {
+        return (
+            <div className="max-w-md space-y-6">
+                <div role="alert" className="border border-error px-4 py-3 text-error">
+                    <p>Your verification code has expired.</p>
+                </div>
+                <p className="text-stone-text">
+                    Please sign up again to receive a new code.
+                </p>
+                <button
+                    type="button"
+                    onClick={() => {
+                        setStep("form");
+                        setCode("");
+                        setCodeError(null);
+                    }}
+                    className="label-caps rounded-sm inline-flex cursor-pointer items-center justify-center bg-lime px-6 py-3.5 text-ink hover:bg-lime-400"
+                >
+                    Sign up again
+                </button>
+            </div>
+        );
+    }
 
-      <FormField
-        name="email"
-        label="Email"
-        type="email"
-        autoComplete="email"
-        error={fieldErrors.email}
-      />
+    // ─── Verification step ──────────────────────────────────────────────────
 
-      <FormField
-        name="password"
-        label="Password"
-        type="password"
-        autoComplete="new-password"
-        hint="8 to 72 characters."
-        error={fieldErrors.password}
-      />
+    if (step === "verify") {
+        return (
+            <div className="max-w-md space-y-6">
+                <div className="flex items-center gap-3">
+                    <Mail aria-hidden className="size-6 shrink-0 text-ink" />
+                    <div>
+                        <h3 className="label-caps text-ink">Verify your email</h3>
+                        <p className="mt-1 text-sm text-stone-text">
+                            Enter the 6-digit code we sent to{" "}
+                            <span className="font-semibold">{email}</span>
+                        </p>
+                    </div>
+                </div>
 
-      <button
-        type="submit"
-        disabled={pending}
-        className="label-caps rounded-sm inline-flex cursor-pointer items-center justify-center bg-lime px-6 py-3.5 text-ink hover:bg-lime-400 disabled:cursor-not-allowed disabled:opacity-60"
-      >
-        {pending ? "Creating account…" : "Create account"}
-      </button>
+                <form onSubmit={handleVerify} noValidate className="space-y-5">
+                    {codeError && (
+                        <div role="alert" className="border border-error px-4 py-3 text-sm text-error">
+                            {codeError}
+                        </div>
+                    )}
 
-      <p className="text-stone-text">
-        Already have an account?{" "}
-        <Link href="/login" className="text-ink hover:bg-lime px-2 py-2 rounded-sm">
-          Log in
-        </Link>
-      </p>
-    </form>
-  );
+                    <FormField
+                        name="code"
+                        label="Verification code"
+                        type="text"
+                        inputMode="numeric"
+                        autoComplete="one-time-code"
+                        maxLength={6}
+                        placeholder="123456"
+                        value={code}
+                        onChange={(e) => setCode(e.target.value)}
+                    />
+
+                    <button
+                        type="submit"
+                        disabled={verifyPending}
+                        className="label-caps rounded-sm inline-flex w-full cursor-pointer items-center justify-center bg-lime px-6 py-3.5 text-ink hover:bg-lime-400 disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                        {verifyPending ? "Verifying…" : "Verify & continue"}
+                    </button>
+                </form>
+
+                {resendMsg && (
+                    <p className="text-sm text-stone-text">{resendMsg}</p>
+                )}
+
+                <button
+                    type="button"
+                    onClick={handleResend}
+                    disabled={resendPending}
+                    className="label-caps text-stone-text underline underline-offset-4 hover:text-ink disabled:opacity-60"
+                >
+                    {resendPending ? "Sending…" : "Resend code"}
+                </button>
+            </div>
+        );
+    }
+
+    // ─── Signup form step ───────────────────────────────────────────────────
+
+    return (
+        <form onSubmit={handleSignup} noValidate className="max-w-md space-y-6">
+            {formErrors.length > 0 && (
+                <div role="alert" className="border border-error px-4 py-3 text-error">
+                    {formErrors.map((message) => (
+                        <p key={message}>{message}</p>
+                    ))}
+                </div>
+            )}
+
+            <FormField
+                name="name"
+                label="Full name"
+                type="text"
+                autoComplete="name"
+                placeholder="Your full name"
+                error={fieldErrors.name}
+            />
+
+            <FormField
+                name="email"
+                label="Email"
+                type="email"
+                autoComplete="email"
+                placeholder="you@example.com"
+                error={fieldErrors.email}
+            />
+
+            <FormField
+                name="password"
+                label="Password"
+                type="password"
+                autoComplete="new-password"
+                hint="8 to 72 characters."
+                error={fieldErrors.password}
+            />
+
+            <button
+                type="submit"
+                disabled={pending}
+                className="label-caps rounded-sm inline-flex cursor-pointer items-center justify-center bg-lime px-6 py-3.5 text-ink hover:bg-lime-400 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+                {pending ? "Creating account…" : "Create account"}
+            </button>
+
+            <p className="text-stone-text">
+                Already have an account?{" "}
+                <Link href="/organizer/login" className="text-ink hover:bg-lime px-2 py-2 rounded-sm">
+                    Log in
+                </Link>
+            </p>
+        </form>
+    );
 }

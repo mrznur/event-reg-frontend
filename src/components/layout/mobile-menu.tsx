@@ -128,9 +128,18 @@ export function MobileMenu({ links, scrolled }: { links: readonly NavLink[]; scr
         {/* Authentication actions */}
         <div className="flex flex-col items-start gap-8 px-4 pt-10">
           {status !== "authenticated" && (
-            <CtaLink href="/events" size="lg" onClick={close}>
-              Event Registration
-            </CtaLink>
+            <div className="flex items-center gap-6">
+              <Link
+                href="/login"
+                onClick={close}
+                className="label-caps underline underline-offset-8 hover:text-lime-400"
+              >
+                Sign In
+              </Link>
+              <CtaLink href="/signup" size="lg" onClick={close}>
+                Sign Up
+              </CtaLink>
+            </div>
           )}
 
           {status === "authenticated" && (

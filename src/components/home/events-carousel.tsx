@@ -67,21 +67,23 @@ export function EventsCarousel({ events }: Props) {
                                 {/* Gradient overlay */}
                                 <div className="absolute inset-0 bg-gradient-to-t from-ink/80 via-ink/20 to-transparent" />
 
-                                {/* Content — bottom left */}
-                                <div className="absolute bottom-24 left-0 px-6 md:px-10 lg:px-16">
-                                    <p className="label-caps mb-3 text-lime">
-                                        {event.category.charAt(0) + event.category.slice(1).toLowerCase()}
-                                    </p>
-                                    <p className="mb-6 max-w-2xl text-2xl font-bold leading-tight text-paper md:text-4xl lg:text-5xl">
-                                        {event.title}
-                                    </p>
-                                    <Link
-                                        href={`/events/${event.slug}`}
-                                        className="group inline-flex items-center gap-3 rounded-sm bg-lime px-6 py-3 text-sm font-semibold uppercase tracking-wider text-ink transition duration-300 hover:bg-lime-400 active:translate-y-px"
-                                    >
-                                        View event
-                                        <ArrowRight aria-hidden className="size-4 transition-transform duration-300 group-hover:translate-x-1" />
-                                    </Link>
+                                {/* Content — constrained to page width */}
+                                <div className="absolute bottom-24 inset-x-0">
+                                    <div className="mx-auto max-w-[1440px] px-4 md:px-6 lg:px-8">
+                                        <p className="label-caps mb-3 text-lime">
+                                            {event.category.charAt(0) + event.category.slice(1).toLowerCase()}
+                                        </p>
+                                        <p className="mb-6 max-w-2xl text-2xl font-bold leading-tight text-paper md:text-4xl lg:text-5xl">
+                                            {event.title}
+                                        </p>
+                                        <Link
+                                            href={`/events/${event.slug}`}
+                                            className="group inline-flex items-center gap-3 rounded-sm bg-lime px-6 py-3 text-sm font-semibold uppercase tracking-wider text-ink transition duration-300 hover:bg-lime-400 active:translate-y-px"
+                                        >
+                                            View event
+                                            <ArrowRight aria-hidden className="size-4 transition-transform duration-300 group-hover:translate-x-1" />
+                                        </Link>
+                                    </div>
                                 </div>
                             </div>
                         );
@@ -89,40 +91,40 @@ export function EventsCarousel({ events }: Props) {
                 </div>
             </div>
 
-            {/* Bottom bar: view all left, dots right */}
-            <div className="absolute bottom-6 left-0 right-0 flex items-center justify-between px-6 md:px-10 lg:px-16">
-                {/* View all events — nav wipe style on dark bg */}
-                <Link
-                    href="/events"
-                    className="group label-caps relative isolate block overflow-hidden rounded px-4 py-2.5 text-paper"
-                >
-                    <span
-                        aria-hidden="true"
-                        className="absolute inset-0 -z-10 origin-bottom scale-y-0 bg-lime transition-transform duration-300 ease-out group-hover:scale-y-100"
-                    />
-                    <span className="transition-colors duration-300 group-hover:text-ink">
-                        View all events
-                    </span>
-                </Link>
+            {/* Bottom bar — inside page width container */}
+            <div className="absolute bottom-6 inset-x-0">
+                <div className="mx-auto flex max-w-[1440px] items-center justify-between px-4 md:px-6 lg:px-8">
+                    <Link
+                        href="/events"
+                        className="group label-caps relative isolate block overflow-hidden rounded px-4 py-2.5 text-paper"
+                    >
+                        <span
+                            aria-hidden="true"
+                            className="absolute inset-0 -z-10 origin-bottom scale-y-0 bg-lime transition-transform duration-300 ease-out group-hover:scale-y-100"
+                        />
+                        <span className="transition-colors duration-300 group-hover:text-ink">
+                            View all events
+                        </span>
+                    </Link>
 
-                {/* Dots */}
-                {events.length > 1 && (
-                    <div role="tablist" aria-label="Event slides" className="flex gap-2.5">
-                        {events.map((event, i) => (
-                            <button
-                                key={event.id}
-                                role="tab"
-                                type="button"
-                                aria-selected={i === selected}
-                                aria-label={`Go to slide ${i + 1}`}
-                                onClick={() => emblaApi?.scrollTo(i)}
-                                className={`h-2 w-2 rounded-full transition-colors duration-300 ${
-                                    i === selected ? "bg-lime" : "bg-paper/40 hover:bg-paper/70"
-                                }`}
-                            />
-                        ))}
-                    </div>
-                )}
+                    {events.length > 1 && (
+                        <div role="tablist" aria-label="Event slides" className="flex gap-2.5">
+                            {events.map((event, i) => (
+                                <button
+                                    key={event.id}
+                                    role="tab"
+                                    type="button"
+                                    aria-selected={i === selected}
+                                    aria-label={`Go to slide ${i + 1}`}
+                                    onClick={() => emblaApi?.scrollTo(i)}
+                                    className={`h-2 w-2 rounded-full transition-colors duration-300 ${
+                                        i === selected ? "bg-lime" : "bg-paper/40 hover:bg-paper/70"
+                                    }`}
+                                />
+                            ))}
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
     );

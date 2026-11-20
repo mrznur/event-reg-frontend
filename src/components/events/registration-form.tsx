@@ -101,6 +101,7 @@ export function RegistrationForm({ slug }: Props) {
                 label="Full name"
                 type="text"
                 autoComplete="name"
+                placeholder="Your full name"
                 error={fieldErrors.name}
             />
 
@@ -109,6 +110,7 @@ export function RegistrationForm({ slug }: Props) {
                 label="Email"
                 type="email"
                 autoComplete="email"
+                placeholder="you@example.com"
                 error={fieldErrors.email}
             />
 
@@ -117,6 +119,7 @@ export function RegistrationForm({ slug }: Props) {
                 label="Phone number"
                 type="tel"
                 autoComplete="tel"
+                placeholder="+880 1700 000000"
                 error={fieldErrors.phone}
             />
 

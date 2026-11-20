@@ -76,25 +76,10 @@ function HoverButton({
   );
 }
 
-function RegisterLink({ scrolled }: { scrolled: boolean }) {
+function AuthActions({ scrolled, isActive }: { scrolled: boolean; isActive: (href: string) => boolean }) {
   const { status } = useSession();
-  if (status === "authenticated") return null;
-  return (
-    <CtaLink href="/events" className={!scrolled ? "bg-lime/90" : ""}>
-      Event Registration
-    </CtaLink>
-  );
-}
-
-function AuthLinks({
-  isActive,
-  scrolled,
-}: {
-  isActive: (href: string) => boolean;
-  scrolled: boolean;
-}) {
   const router = useRouter();
-  const { status, logout } = useSession();
+  const { logout } = useSession();
   const [pending, setPending] = useState(false);
 
   async function handleLogout() {
@@ -108,16 +93,27 @@ function AuthLinks({
     router.push("/");
   }
 
-  if (status !== "authenticated") return null;
+  if (status === "authenticated") {
+    return (
+      <>
+        <HoverLink href="/dashboard" active={isActive("/dashboard")} transparent={!scrolled}>
+          Dashboard
+        </HoverLink>
+        <HoverButton onClick={handleLogout} disabled={pending} transparent={!scrolled}>
+          {pending ? "Logging out..." : "Log out"}
+        </HoverButton>
+      </>
+    );
+  }
 
   return (
     <>
-      <HoverLink href="/dashboard" active={isActive("/dashboard")} transparent={!scrolled}>
-        Dashboard
+      <HoverLink href="/login" active={isActive("/login")} transparent={!scrolled}>
+        Sign In
       </HoverLink>
-      <HoverButton onClick={handleLogout} disabled={pending} transparent={!scrolled}>
-        {pending ? "Logging out..." : "Log out"}
-      </HoverButton>
+      <CtaLink href="/signup" className={!scrolled ? "bg-lime/90" : ""}>
+        Sign Up
+      </CtaLink>
     </>
   );
 }
@@ -228,8 +224,7 @@ export function SiteNav() {
 
         {/* Right-side Actions */}
         <div className="hidden items-center gap-4 md:flex">
-          <AuthLinks isActive={isActive} scrolled={scrolled} />
-          <RegisterLink scrolled={scrolled} />
+          <AuthActions scrolled={scrolled} isActive={isActive} />
         </div>
 
         {/* Mobile Navigation */}
