@@ -57,17 +57,17 @@ export function RegistrationsTable({ registrations, eventTitle }: Props) {
                     <span className="font-semibold text-ink">{registrations.length}</span> registrations
                     {query && <span>· {filtered.length} shown</span>}
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
                     <input
                         type="search"
                         value={query}
                         onChange={(e) => setQuery(e.target.value)}
                         placeholder="Search name, email, code…"
-                        className="border border-ink/20 bg-paper px-4 py-2 text-sm text-ink placeholder:text-stone w-56"
+                        className="w-full border border-ink/20 bg-paper px-4 py-2 text-sm text-ink placeholder:text-stone sm:w-56"
                     />
                     <button
                         onClick={downloadCSV}
-                        className="label-caps inline-flex cursor-pointer items-center gap-2 border border-ink/20 px-4 py-2 text-ink hover:bg-ink/5 transition-colors"
+                        className="label-caps inline-flex cursor-pointer items-center justify-center gap-2 border border-ink/20 px-4 py-2 text-ink hover:bg-ink/5 transition-colors"
                     >
                         <Download aria-hidden className="size-4" />
                         Export CSV

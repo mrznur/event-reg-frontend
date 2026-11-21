@@ -145,7 +145,7 @@ export function SignupForm() {
                     <p>Your verification code has expired.</p>
                 </div>
                 <p className="text-stone-text">
-                    Please sign up again to receive a new code.
+                    Please register again to receive a new code.
                 </p>
                 <button
                     type="button"
@@ -156,7 +156,7 @@ export function SignupForm() {
                     }}
                     className="label-caps rounded-sm inline-flex cursor-pointer items-center justify-center bg-lime px-6 py-3.5 text-ink hover:bg-lime-400"
                 >
-                    Sign up again
+                    Register again
                 </button>
             </div>
         );
@@ -271,7 +271,7 @@ export function SignupForm() {
 
             <p className="text-stone-text">
                 Already have an account?{" "}
-                <Link href="/organizer/login" className="text-ink hover:bg-lime px-2 py-2 rounded-sm">
+                <Link href="/organizer/log-in" className="text-ink hover:bg-lime px-2 py-2 rounded-sm">
                     Log in
                 </Link>
             </p>

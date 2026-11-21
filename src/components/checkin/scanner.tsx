@@ -25,6 +25,10 @@ export function Scanner({ eventId }: Props) {
             QrScanner = mod.default;
             if (!videoRef.current) return;
 
+            // willReadFrequently suppresses the Canvas2D getImageData warning
+            const canvas = document.createElement("canvas");
+            canvas.getContext("2d", { willReadFrequently: true });
+
             scanner = new QrScanner(
                 videoRef.current,
                 async (scanResult) => {
@@ -33,8 +37,22 @@ export function Scanner({ eventId }: Props) {
                     setScanning(false);
                     setError(null);
 
+                    // QR encodes the ticket page URL — extract the code from the path
+                    // e.g. https://domain.com/tickets/BUCC-A1B2C3D4 → BUCC-A1B2C3D4
+                    let ticketCode = scanResult.data.trim();
                     try {
-                        const res = await checkInByCode(eventId, scanResult.data);
+                        const url = new URL(ticketCode);
+                        const parts = url.pathname.split("/").filter(Boolean);
+                        // pathname is /tickets/<code>
+                        if (parts.length >= 2 && parts[0] === "tickets") {
+                            ticketCode = parts[1];
+                        }
+                    } catch {
+                        // Not a URL — use the raw value as-is (plain code)
+                    }
+
+                    try {
+                        const res = await checkInByCode(eventId, ticketCode);
                         const alreadyCheckedIn = !res.ok && res.registration.status === "CHECKED_IN";
                         setResult({ registration: res.registration, alreadyCheckedIn });
                     } catch (err) {

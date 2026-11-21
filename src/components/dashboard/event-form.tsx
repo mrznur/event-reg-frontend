@@ -96,13 +96,13 @@ export function EventForm({ event }: Props) {
     }
 
     const inputClass = (err?: string) =>
-        `block w-full border bg-paper px-4 py-3 text-ink placeholder:text-stone ${err ? "border-error" : "border-ink/20"}`;
+        `block w-full min-w-0 border bg-paper px-4 py-3 text-ink placeholder:text-stone ${err ? "border-error" : "border-ink/20"}`;
 
     // Format datetime for input[type=datetime-local]
     const toLocal = (iso?: string) => iso ? iso.slice(0, 16) : "";
 
     return (
-        <form onSubmit={handleSubmit} noValidate className="space-y-6 max-w-2xl">
+        <form onSubmit={handleSubmit} noValidate className="w-full max-w-2xl space-y-6">
             {formError && (
                 <div role="alert" className="border border-error px-4 py-3 text-sm text-error">
                     {formError}
@@ -153,7 +153,7 @@ export function EventForm({ event }: Props) {
                 </Field>
             </div>
 
-            <div className="flex gap-4">
+            <div className="flex flex-wrap gap-4">
                 <button
                     type="submit"
                     disabled={pending}

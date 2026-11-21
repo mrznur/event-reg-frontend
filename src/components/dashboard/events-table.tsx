@@ -42,10 +42,10 @@ export function DashboardEventsTable({ events }: Props) {
                 <tbody className="divide-y divide-ink/5">
                     {events.map((event) => (
                         <tr key={event.id} className="group">
-                            <td className="py-4 pr-4">
+                            <td className="py-4 pr-4 min-w-0">
                                 <Link
                                     href={`/dashboard/events/${event.id}`}
-                                    className="font-medium hover:underline underline-offset-4"
+                                    className="block font-medium hover:underline underline-offset-4 truncate max-w-[200px] sm:max-w-none"
                                 >
                                     {event.title}
                                 </Link>
@@ -66,7 +66,7 @@ export function DashboardEventsTable({ events }: Props) {
                                 </span>
                             </td>
                             <td className="py-4">
-                                <div className="flex items-center gap-3 text-xs">
+                                <div className="flex items-center gap-3 whitespace-nowrap text-xs">
                                     <Link
                                         href={`/dashboard/events/${event.id}`}
                                         className="label-caps text-stone-text hover:text-ink"
