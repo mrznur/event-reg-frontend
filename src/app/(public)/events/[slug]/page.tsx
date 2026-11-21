@@ -29,7 +29,7 @@ async function EventDetail({ params }: { params: Promise<{ slug: string }> }) {
     return (
         <div className="grid gap-10 lg:grid-cols-[1fr_380px]">
             {/* Left column */}
-            <div>
+            <div className="lg:order-first">
                 {/* Cover image */}
                 <div className="relative mb-8 aspect-[3/2] w-full overflow-hidden bg-stone/10">
                     {isPicsumHost ? (
@@ -68,8 +68,8 @@ async function EventDetail({ params }: { params: Promise<{ slug: string }> }) {
                 </p>
             </div>
 
-            {/* Right column — event details card */}
-            <aside className="h-fit border border-ink/10 bg-paper p-6 lg:sticky lg:top-24">
+            {/* Right column — event details card, shown first on mobile */}
+            <aside className="order-first h-fit border border-ink/10 bg-paper p-6 lg:order-last lg:sticky lg:top-24">
                 <h2 className="label-caps mb-6 text-stone-text">Event details</h2>
 
                 <dl className="flex flex-col gap-5">
