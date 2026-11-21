@@ -1,7 +1,7 @@
 ﻿import { Suspense } from "react";
 import Link from "next/link";
 import { Plus } from "lucide-react";
-import { getMyEvents, getMe } from "@/lib/api";
+import { getMyEvents } from "@/lib/api";
 import { DashboardEventsTable } from "@/components/dashboard/events-table";
 
 async function EventsContent() {
@@ -9,15 +9,13 @@ async function EventsContent() {
     return <DashboardEventsTable events={events} />;
 }
 
-export default async function DashboardPage() {
-    const user = await getMe();
-
+export default function DashboardPage() {
     return (
         <div>
             <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
                 <div>
-                    <p className="label-caps text-stone-text">Welcome back</p>
-                    <h1 className="heading-3 mt-1">{user?.name}</h1>
+                    <p className="label-caps text-stone-text">Organizer Dashboard</p>
+                    <h1 className="heading-3 mt-1">My Events</h1>
                 </div>
                 <Link
                     href="/dashboard/events/new"

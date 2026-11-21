@@ -45,21 +45,21 @@ export function ManualSearch({ eventId }: Props) {
 
     return (
         <div className="space-y-4">
-            <form onSubmit={handleSearch} className="flex gap-2">
+            <form onSubmit={handleSearch} className="flex flex-col gap-2 sm:flex-row">
                 <input
                     type="search"
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
                     placeholder="Name, email, or ticket code…"
-                    className="flex-1 border border-ink/20 bg-paper px-4 py-3 text-ink placeholder:text-stone"
+                    className="w-full border border-ink/20 bg-paper px-4 py-3 text-ink placeholder:text-stone sm:flex-1"
                 />
                 <button
                     type="submit"
                     disabled={searching}
-                    className="label-caps inline-flex cursor-pointer items-center gap-2 bg-lime px-5 py-3 text-ink hover:bg-lime-400 transition-colors disabled:opacity-60"
+                    className="label-caps inline-flex cursor-pointer items-center justify-center gap-2 bg-lime px-5 py-3 text-ink hover:bg-lime-400 transition-colors disabled:opacity-60"
                 >
                     <Search aria-hidden className="size-4" />
-                    {searching ? "Searching…" : "Search"}
+                    <span>{searching ? "Searching…" : "Search"}</span>
                 </button>
             </form>
 
@@ -79,10 +79,10 @@ export function ManualSearch({ eventId }: Props) {
             {results && results.length > 0 && (
                 <ul className="divide-y divide-ink/5 border border-ink/10">
                     {results.map((r) => (
-                        <li key={r.id} className="flex items-center justify-between gap-4 p-4">
-                            <div>
-                                <p className="font-medium">{r.name}</p>
-                                <p className="text-sm text-stone-text">{r.email}</p>
+                        <li key={r.id} className="flex flex-wrap items-center justify-between gap-3 p-4">
+                            <div className="min-w-0">
+                                <p className="font-medium truncate">{r.name}</p>
+                                <p className="text-sm text-stone-text truncate">{r.email}</p>
                                 <p className="font-mono text-xs text-stone-text">{r.ticketCode}</p>
                             </div>
                             <div className="flex items-center gap-3">

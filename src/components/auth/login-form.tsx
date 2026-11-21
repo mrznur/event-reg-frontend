@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import * as z from "zod";
@@ -17,17 +17,10 @@ type FieldErrors = { email?: string; password?: string };
 
 export function LoginForm() {
   const router = useRouter();
-  const { status, login } = useSession();
+  const { login } = useSession();
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [formErrors, setFormErrors] = useState<string[]>([]);
   const [pending, setPending] = useState(false);
-
-  // Covers both a fresh login and someone who is already logged in.
-  useEffect(() => {
-    if (status === "authenticated") {
-      router.replace("/");
-    }
-  }, [status, router]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -54,7 +47,9 @@ export function LoginForm() {
     setPending(true);
 
     try {
-      await login(result.data);
+      const user = await login(result.data);
+      // Route based on role — login() returns the user object
+      router.replace(user.role === "ADMIN" ? "/admin" : "/dashboard");
     } catch (error) {
       setFormErrors(
         error instanceof ApiError
@@ -102,9 +97,15 @@ export function LoginForm() {
       </button>
 
       <p className="text-stone-text">
-        No account yet?{" "}
-        <Link href="/signup" className="text-ink underline-offset-4 hover:cursor hover:bg-lime px-2 py-2">
+        No account?{" "}
+        <Link href="/organizer/register" className="text-ink underline-offset-4 hover:bg-lime px-2 py-2 rounded-sm">
           Create one
+        </Link>
+      </p>
+
+      <p className="text-stone-text">
+        <Link href="/organizer/forgot-password" className="text-ink underline-offset-4 hover:bg-lime px-2 py-2 rounded-sm">
+          Forgot password?
         </Link>
       </p>
     </form>
