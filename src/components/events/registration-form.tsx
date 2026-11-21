@@ -69,10 +69,10 @@ export function RegistrationForm({ slug }: Props) {
             <div className="border border-ink/10 bg-paper p-6">
                 <div className="flex items-center gap-3 text-ink">
                     <CheckCircle aria-hidden className="size-6 shrink-0" />
-                    <h3 className="label-caps">You're registered!</h3>
+                    <h3 className="label-caps">You&apos;re registered!</h3>
                 </div>
                 <p className="mt-4 text-sm text-stone-text">
-                    Your ticket code is below. Save it — you'll need it at the door.
+                    Your ticket code is below. A confirmation has been sent to your email.
                 </p>
                 <div className="mt-4 border border-ink/15 bg-ink px-5 py-4 text-center">
                     <p className="label-caps text-paper/60">Ticket code</p>
@@ -80,6 +80,12 @@ export function RegistrationForm({ slug }: Props) {
                         {ticketCode}
                     </p>
                 </div>
+                <a
+                    href={`/tickets/${ticketCode}`}
+                    className="group label-caps mt-4 inline-flex w-full cursor-pointer items-center justify-center gap-2 bg-lime px-6 py-3.5 text-ink transition duration-300 hover:bg-lime-400"
+                >
+                    View your ticket &amp; QR code
+                </a>
             </div>
         );
     }

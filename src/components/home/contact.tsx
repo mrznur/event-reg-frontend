@@ -40,8 +40,16 @@ function EnquiryForm() {
 
         setFieldErrors({});
         setPending(true);
-        // Fire-and-forget — no backend endpoint yet, just show success
-        await new Promise((r) => setTimeout(r, 600));
+        try {
+            await fetch("/api/contact", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(input),
+                credentials: "same-origin",
+            });
+        } catch {
+            // fail silently — message still shows sent
+        }
         setPending(false);
         setSubmitted(true);
     }
@@ -104,7 +112,7 @@ function EnquiryForm() {
                 <button
                     type="submit"
                     disabled={pending}
-                    className="group label-caps inline-flex cursor-pointer items-center gap-3 bg-lime px-6 py-3.5 text-ink transition duration-300 hover:bg-lime-400 disabled:cursor-not-allowed disabled:opacity-60"
+                    className="group label-caps inline-flex rounded-sm cursor-pointer items-center gap-3 bg-lime px-6 py-3.5 text-ink transition duration-300 hover:bg-lime-400 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                     {pending ? "Sending…" : "Send message"}
                     {!pending && <ArrowRight aria-hidden className="size-4 transition-transform duration-300 group-hover:translate-x-1" />}

@@ -2,9 +2,6 @@ import { getStats } from "@/lib/api";
 import { SlideIn } from "@/components/motion/reveal";
 import { StatCounter } from "./stat-counter";
 
-// activeMembers is a static number until the backend exposes it
-const ACTIVE_MEMBERS = 2500;
-
 export function ImpactStatsFallback() {
     return (
         <section
@@ -41,7 +38,7 @@ export async function ImpactStats() {
               { value: stats.events, label: "Events hosted" },
               { value: stats.registrations, label: "Student registrations" },
               { value: stats.checkedIn, label: "Total check-ins" },
-              { value: ACTIVE_MEMBERS, label: "Active members" },
+              { value: stats.activeMembers, label: "Active members" },
           ]
         : null;
 

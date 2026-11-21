@@ -40,6 +40,7 @@ export interface SiteStats {
     events: number;
     registrations: number;
     checkedIn: number;
+    activeMembers: number;
 }
 
 export async function getStats(): Promise<SiteStats> {
@@ -206,16 +207,33 @@ function resolveUrl(path: string): string {
     return path;
 }
 
+async function getServerHeaders(): Promise<HeadersInit> {
+    if (typeof window !== "undefined") return {};
+    try {
+        const { headers } = await import("next/headers");
+        const h = await headers();
+        const cookie = h.get("cookie");
+        return cookie ? { cookie } : {};
+    } catch {
+        return {};
+    }
+}
+
 async function request<T>(
     path: string,
     { method = "GET", body }: RequestOptions = {},
 ): Promise<T> {
     let res: Response;
 
+    const serverHeaders = await getServerHeaders();
+
     try {
         res = await fetch(resolveUrl(path), {
             method,
-            headers: body === undefined ? undefined : { "Content-Type": "application/json" },
+            headers: {
+                ...serverHeaders,
+                ...(body !== undefined ? { "Content-Type": "application/json" } : {}),
+            },
             body: body === undefined ? undefined : JSON.stringify(body),
             credentials: "same-origin",
             cache: "no-store",
@@ -251,7 +269,7 @@ export async function signup(input: {
     email: string;
     password: string;
 }): Promise<void> {
-    await request<{ ok: boolean }>("/api/auth/signup", {
+    await request<{ ok: boolean }>("/api/auth/register", {
         method: "POST",
         body: input,
     });
@@ -291,6 +309,69 @@ export async function login(input: {
 export async function logout(): Promise<void> {
     await request<{ ok: boolean }>("/api/auth/logout", { method: "POST" });
 }
+
+// ─── Tickets ─────────────────────────────────────────────────────────────────
+
+export interface TicketDetail {
+    code: string;
+    status: "CONFIRMED" | "CHECKED_IN" | "CANCELLED";
+    name: string;
+    email: string;
+    phone: string;
+    checkedInAt: string | null;
+    createdAt: string;
+    event: {
+        id: string;
+        title: string;
+        slug: string;
+        category: EventCategory;
+        coverImage: string;
+        venue: string;
+        timezone: string;
+        startsAt: string;
+        endsAt: string;
+        status: EventStatus;
+    };
+}
+
+export async function getTicket(code: string): Promise<TicketDetail> {
+    const data = await request<{ ticket: TicketDetail }>(`/api/tickets/${code}`);
+    return data.ticket;
+}
+
+// ─── Admin ───────────────────────────────────────────────────────────────────
+
+export interface AdminUser {
+    id: string;
+    name: string;
+    email: string;
+    role: UserRole;
+    createdAt: string;
+}
+
+export interface AdminEvent extends OrganizerEvent {
+    organizer: { id: string; name: string; email: string };
+}
+
+export async function adminGetUsers(): Promise<AdminUser[]> {
+    const data = await request<{ users: AdminUser[] }>("/api/admin/users");
+    return data.users;
+}
+
+export async function adminGetEvents(): Promise<AdminEvent[]> {
+    const data = await request<{ events: AdminEvent[] }>("/api/admin/events");
+    return data.events;
+}
+
+export async function adminDeleteUser(id: string): Promise<void> {
+    await request<{ ok: boolean }>(`/api/admin/users/${id}`, { method: "DELETE" });
+}
+
+export async function adminCancelEvent(id: string): Promise<void> {
+    await request<{ ok: boolean }>(`/api/admin/events/${id}/cancel`, { method: "PATCH" });
+}
+
+// ─── Auth ─────────────────────────────────────────────────────────────────────
 
 export async function getMe(): Promise<User | null> {
     try {

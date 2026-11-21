@@ -1,5 +1,14 @@
+
+"use client";
+
+import { useCallback, useEffect, useState } from "react";
+import useEmblaCarousel from "embla-carousel-react";
+import Autoplay from "embla-carousel-autoplay";
+import Image from "next/image";
+import Link from "next/link";
 import { SlideIn } from "@/components/motion/reveal";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Plus, X, ChevronLeft, ChevronRight } from "lucide-react";
+import { MEMBER_PHOTOS } from "@/lib/members";
 
 const BENEFITS = [
     {
@@ -8,74 +17,334 @@ const BENEFITS = [
     },
     {
         title: "Connect With Like-Minded People",
-        body: "Meet students who share an interest in technology, innovation, and problem-solving.",
+        body: "Meet students who share an interest in technology, innovation, and problem-solving. Build meaningful connections and collaborate with people who share your passion.",
     },
     {
         title: "Participate in Competitions",
-        body: "Challenge yourself through hackathons, programming contests, and other technical competitions.",
+        body: "Challenge yourself through hackathons, programming contests, and other technical competitions. Put your skills to the test and learn from every experience.",
     },
     {
         title: "Develop Leadership Skills",
-        body: "Take responsibility, collaborate with teams, organize initiatives, and develop communication skills.",
+        body: "Take responsibility, collaborate with teams, organize initiatives, and develop communication and leadership skills through real experiences.",
     },
     {
         title: "Explore New Technologies",
-        body: "Discover emerging technologies and develop knowledge beyond the traditional academic curriculum.",
+        body: "Discover emerging technologies and develop knowledge beyond the traditional academic curriculum. Stay curious and explore what's next in technology.",
     },
 ] as const;
 
+// Images are managed in src/lib/members.ts — add, remove, or reorder there.
+const CLUB_IMAGES = MEMBER_PHOTOS;
+
 export function WhyJoin() {
+    const [activeBenefit, setActiveBenefit] = useState<number | null>(null);
+    const [selected, setSelected] = useState(0);
+
+    const [emblaRef, emblaApi] = useEmblaCarousel(
+        { loop: true },
+        [
+            Autoplay({
+                delay: 4000,
+                stopOnInteraction: false,
+                stopOnMouseEnter: true,
+            }),
+        ]
+    );
+
+    const onSelect = useCallback(() => {
+        if (!emblaApi) return;
+        setSelected(emblaApi.selectedScrollSnap());
+    }, [emblaApi]);
+
+    useEffect(() => {
+        if (!emblaApi) return;
+
+        emblaApi.on("select", onSelect);
+        onSelect();
+
+        return () => {
+            emblaApi.off("select", onSelect);
+        };
+    }, [emblaApi, onSelect]);
+
+    // Close modal with Escape key
+    useEffect(() => {
+        if (activeBenefit === null) return;
+
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === "Escape") {
+                setActiveBenefit(null);
+            }
+        };
+
+        document.addEventListener("keydown", handleKeyDown);
+        document.body.style.overflow = "hidden";
+
+        return () => {
+            document.removeEventListener("keydown", handleKeyDown);
+            document.body.style.overflow = "";
+        };
+    }, [activeBenefit]);
+
     return (
         <section
             aria-labelledby="why-join-heading"
             id="why-join"
             className="scroll-mt-16 border-t border-ink/10 bg-ink text-paper on-ink md:scroll-mt-20"
         >
-            <div className="mx-auto max-w-[1440px] px-4 py-16 md:px-6 md:py-24 lg:px-8">
-                <div className="grid gap-12 lg:grid-cols-[1fr_1fr]">
-                    {/* Left */}
-                    <div className="flex flex-col gap-6">
+            <div className="mx-auto max-w-[1440px] px-4 py-14 md:px-6 md:py-20 lg:px-8">
+
+                <div className="grid items-center gap-10 lg:grid-cols-[0.95fr_1.05fr] lg:gap-16">
+
+                    {/* LEFT - Introduction and Benefits */}
+                    <div className="flex flex-col">
+
                         <div>
-                            <SlideIn><p className="label-caps text-paper/60">Why BUCC</p></SlideIn>
-                            <h2 id="why-join-heading" className="heading-2 mt-2">
-                                <SlideIn>More Than a Club.</SlideIn>{" "}
-                                <SlideIn delay={150}><span className="text-paper/50">A Community to Grow With.</span></SlideIn>
+                            <SlideIn>
+                                <p className="label-caps text-paper/60">
+                                    Why Join BUCC
+                                </p>
+                            </SlideIn>
+
+                            <h2
+                                id="why-join-heading"
+                                className="heading-2 mt-2"
+                            >
+                                <SlideIn>
+                                    More Than a Club.
+                                </SlideIn>{" "}
+                                <SlideIn delay={150}>
+                                    <span className="text-paper/50">
+                                        A Community to Grow With.
+                                    </span>
+                                </SlideIn>
                             </h2>
                         </div>
+
                         <SlideIn delay={200}>
-                            <p className="max-w-md text-base leading-relaxed text-paper/70">
-                                BUCC brings together curious minds who want to explore technology,
-                                develop their skills, collaborate on meaningful projects, and grow
+                            <p className="mt-5 max-w-lg text-sm leading-relaxed text-paper/65 md:text-base">
+                                BUCC brings together curious minds who want
+                                to explore technology, develop their skills,
+                                collaborate on meaningful projects, and grow
                                 beyond the classroom.
                             </p>
                         </SlideIn>
-                        <div className="mt-auto">
-                            <a
-                                href="/signup"
-                                className="group label-caps inline-flex cursor-pointer items-center gap-3 bg-lime px-6 py-3.5 text-ink transition duration-300 hover:bg-lime-400"
-                            >
-                                Become a Member
-                                <ArrowRight aria-hidden className="size-4 transition-transform duration-300 group-hover:translate-x-1" />
-                            </a>
+
+                        {/* Benefits */}
+                        <div className="mt-8">
+                            <div className="mb-3 flex items-center justify-between">
+                                <p className="label-caps text-paper/40">
+                                    What you gain
+                                </p>
+                            </div>
+
+                            <ul className="flex flex-col divide-y divide-paper/10">
+                                {BENEFITS.map((benefit, i) => (
+                                    <li
+                                        key={benefit.title}
+                                        className="flex items-center justify-between gap-4 py-3.5"
+                                    >
+                                        <div className="flex min-w-0 items-center gap-4">
+                                            <span className="label-caps shrink-0 text-lime/70">
+                                                {String(i + 1).padStart(2, "0")}
+                                            </span>
+
+                                            <p className="text-sm font-medium text-paper md:text-base">
+                                                {benefit.title}
+                                            </p>
+                                        </div>
+
+                                        <button
+                                            type="button"
+                                            onClick={() => setActiveBenefit(i)}
+                                            aria-label={`Learn more about ${benefit.title}`}
+                                            className="group flex size-8 shrink-0 items-center justify-center rounded-full hover:cursor-pointer border border-paper/20 text-paper/60 transition-all duration-300 hover:border-lime hover:bg-lime hover:text-ink"
+                                        >
+                                            <Plus
+                                                aria-hidden
+                                                className="size-4 transition-transform duration-300 group-hover:rotate-90"
+                                            />
+                                        </button>
+                                    </li>
+                                ))}
+                            </ul>
                         </div>
                     </div>
 
-                    {/* Right — benefits */}
-                    <ul className="flex flex-col divide-y divide-paper/10">
-                        {BENEFITS.map((b, i) => (
-                            <li key={b.title} className="flex gap-4 py-5">
-                                <span className="label-caps mt-1 w-6 shrink-0 text-lime/70">
-                                    {String(i + 1).padStart(2, "0")}
-                                </span>
-                                <div>
-                                    <p className="font-semibold text-paper">{b.title}</p>
-                                    <p className="mt-1 text-sm leading-relaxed text-paper/60">{b.body}</p>
+                    {/* RIGHT - Club Image Carousel and CTA */}
+                    <div className="flex flex-col">
+
+                        {/* Carousel */}
+                        <div className="relative">
+
+                            <div
+                                ref={emblaRef}
+                                className="overflow-hidden rounded-sm"
+                            >
+                                <div className="flex">
+                                    {CLUB_IMAGES.map((image, i) => (
+                                        <div
+                                            key={image.src}
+                                            className="relative min-w-0 flex-[0_0_100%] aspect-[4/3] max-h-[380px] overflow-hidden"
+                                        >
+                                            <Image
+                                                src={image.src}
+                                                alt={image.alt}
+                                                fill
+                                                sizes="(max-width: 1024px) 100vw, 50vw"
+                                                priority={i === 0}
+                                                className="object-cover transition-transform duration-700 hover:scale-105"
+                                            />
+
+                                            {/* Image gradient */}
+                                            <div className="absolute inset-0 bg-gradient-to-t from-ink/70 via-transparent to-transparent" />
+
+                                            {/* Image caption */}
+                                            <div className="absolute bottom-0 inset-x-0 flex items-end justify-between p-5 md:p-6">
+                                                <div>
+                                                    <p className="label-caps text-lime">
+                                                        BUCC Community
+                                                    </p>
+                                                    <p className="mt-1 text-lg font-semibold text-paper">
+                                                        {image.caption}
+                                                    </p>
+                                                </div>
+
+                                                <span className="label-caps text-paper/70">
+                                                    {String(i + 1).padStart(2, "0")}
+                                                    {" / "}
+                                                    {String(CLUB_IMAGES.length).padStart(2, "0")}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    ))}
                                 </div>
-                            </li>
-                        ))}
-                    </ul>
+                            </div>
+
+                            {/* Carousel controls */}
+                            <div className="mt-4 flex items-center justify-between">
+
+                                {/* Pagination */}
+                                <div className="flex items-center gap-2">
+                                    {CLUB_IMAGES.map((image, i) => (
+                                        <button
+                                            key={image.src}
+                                            type="button"
+                                            aria-label={`Go to image ${i + 1}`}
+                                            aria-current={i === selected}
+                                            onClick={() => emblaApi?.scrollTo(i)}
+                                            className={`h-1.5 rounded-full transition-all duration-300 ${i === selected
+                                                    ? "w-7 bg-lime"
+                                                    : "w-1.5 bg-paper/30 hover:bg-paper/60"
+                                                }`}
+                                        />
+                                    ))}
+                                </div>
+
+                                {/* Previous / Next */}
+                                <div className="flex items-center gap-2">
+                                    <button
+                                        type="button"
+                                        aria-label="Previous image"
+                                        onClick={() => emblaApi?.scrollPrev()}
+                                        className="flex size-9 items-center justify-center border border-paper/20 text-paper/70 transition-colors hover:border-lime hover:bg-lime hover:text-ink"
+                                    >
+                                        <ChevronLeft className="size-4" />
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        aria-label="Next image"
+                                        onClick={() => emblaApi?.scrollNext()}
+                                        className="flex size-9 items-center justify-center border border-paper/20 text-paper/70 transition-colors hover:border-lime hover:bg-lime hover:text-ink"
+                                    >
+                                        <ChevronRight className="size-4" />
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Membership CTA */}
+                        <div className="mt-7 flex items-center justify-between gap-4 border-t border-paper/15 pt-5">
+                            <div>
+                                <p className="text-sm font-semibold text-paper">
+                                    Ready to be part of something bigger?
+                                </p>
+                                <p className="mt-1 text-xs text-paper/50">
+                                    Start your journey with BUCC.
+                                </p>
+                            </div>
+
+                            <Link
+                                href="/register"
+                                className="group inline-flex shrink-0 rounded-sm items-center gap-3 bg-lime px-5 py-3 text-xs font-semibold uppercase tracking-wider text-ink transition duration-300 hover:bg-lime-400"
+                            >
+                                Become a Member
+                                <ArrowRight
+                                    aria-hidden
+                                    className="size-4 transition-transform duration-300 group-hover:translate-x-1"
+                                />
+                            </Link>
+                        </div>
+                    </div>
                 </div>
             </div>
+
+            {/* Benefit Modal */}
+            {activeBenefit !== null && (
+                <div
+                    className="fixed inset-0 z-[100] flex items-center justify-center bg-ink/80 px-4 py-6 backdrop-blur-sm"
+                    onMouseDown={(e) => {
+                        if (e.target === e.currentTarget) {
+                            setActiveBenefit(null);
+                        }
+                    }}
+                >
+                    <div
+                        role="dialog"
+                        aria-modal="true"
+                        aria-labelledby="benefit-modal-title"
+                        className="relative w-full max-w-md border border-paper/10 bg-ink p-6 shadow-2xl md:p-8"
+                    >
+                        <div className="flex items-center justify-between">
+                            <p className="label-caps text-lime">
+                                Benefit {String(activeBenefit + 1).padStart(2, "0")}
+                            </p>
+
+                            <button
+                                type="button"
+                                onClick={() => setActiveBenefit(null)}
+                                aria-label="Close modal"
+                                className="flex size-9 items-center hover:cursor-pointer justify-center border border-paper/20 text-paper/60 transition-colors hover:border-lime hover:bg-lime hover:text-ink"
+                            >
+                                <X className="size-4" />
+                            </button>
+                        </div>
+
+                        <h3
+                            id="benefit-modal-title"
+                            className="mt-6 text-2xl font-bold leading-tight text-paper md:text-3xl"
+                        >
+                            {BENEFITS[activeBenefit].title}
+                        </h3>
+
+                        <p className="mt-4 text-sm leading-relaxed text-paper/65">
+                            {BENEFITS[activeBenefit].body}
+                        </p>
+
+                        <div className="mt-8 border-t border-paper/10 pt-5">
+                            <button
+                                type="button"
+                                onClick={() => setActiveBenefit(null)}
+                                className="group inline-flex items-center hover:cursor-pointer gap-2 text-xs font-semibold uppercase tracking-wider text-lime"
+                            >
+                                Close
+                                <X className="size-3 transition-transform group-hover:rotate-90" />
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </section>
     );
 }
