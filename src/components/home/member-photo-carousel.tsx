@@ -26,7 +26,8 @@ export function MemberPhotoCarousel({ photos }: Props) {
     useEffect(() => {
         if (!emblaApi) return;
         emblaApi.on("select", onSelect);
-        onSelect();
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        onSelect(); // initialize selected index on mount
         return () => { emblaApi.off("select", onSelect); };
     }, [emblaApi, onSelect]);
 

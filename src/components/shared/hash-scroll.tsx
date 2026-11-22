@@ -12,8 +12,6 @@ export function HashScroll() {
         const hash = window.location.hash.slice(1);
         if (!hash) return;
 
-        let done = false;
-
         const scrollTo = () => {
             const el = document.getElementById(hash);
             if (el) {
@@ -23,21 +21,17 @@ export function HashScroll() {
             return false;
         };
 
-        // Poll until found
+        // Poll until found (up to 3s), then re-scroll after content streams in
         let attempts = 0;
         const poll = () => {
             if (scrollTo()) {
-                done = true;
-                // Re-scroll after content streams in and layout settles
                 setTimeout(scrollTo, 800);
                 return;
             }
-            if (++attempts < 30) setTimeout(poll, 100); // up to 3s
+            if (++attempts < 30) setTimeout(poll, 100);
         };
 
         poll();
-
-        return () => { done = true; };
     }, []);
 
     return null;

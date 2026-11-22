@@ -49,17 +49,16 @@ function HoverLink({
 
 export function SiteNav() {
   const pathname = usePathname();
-  const [hydratedPathname, setHydratedPathname] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
   const [activeSection, setActiveSection] = useState<string>("");
   const [scrolled, setScrolled] = useState(false);
 
-  useEffect(() => {
-    setHydratedPathname(window.location.pathname);
-  }, [pathname]);
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  useEffect(() => { setMounted(true); }, []);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10);
-    onScroll();
+    onScroll(); // set initial scroll state on mount
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
@@ -96,10 +95,10 @@ export function SiteNav() {
   const links = [{ href: "/", label: "Home" }, ...NAV_LINKS];
 
   const isActive = (href: string) => {
-    if (!hydratedPathname) return false;
-    if (href.startsWith("/#")) return hydratedPathname === "/" && activeSection === href.slice(2);
-    if (href === "/") return hydratedPathname === "/" && activeSection === "";
-    return hydratedPathname === href || hydratedPathname.startsWith(`${href}/`);
+    if (!mounted) return false;
+    if (href.startsWith("/#")) return pathname === "/" && activeSection === href.slice(2);
+    if (href === "/") return pathname === "/" && activeSection === "";
+    return pathname === href || pathname.startsWith(`${href}/`);
   };
 
   return (

@@ -78,7 +78,8 @@ export function SignupForm() {
         setPending(true);
 
         // Strip confirmPassword before sending to the API
-        const { confirmPassword: _, ...signupData } = result.data;
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { confirmPassword: _confirmPassword, ...signupData } = result.data;
 
         try {
             await signup(signupData);

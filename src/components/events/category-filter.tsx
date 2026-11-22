@@ -2,7 +2,6 @@
 
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { EVENT_CATEGORIES } from "@/lib/constants";
-import type { EventCategory } from "@/lib/api";
 
 const ALL_OPTION = { value: "", label: "All" } as const;
 const OPTIONS = [ALL_OPTION, ...EVENT_CATEGORIES];

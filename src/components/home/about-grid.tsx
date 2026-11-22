@@ -76,58 +76,77 @@ function AboutImage({ image, visible }: { image: { url: string; alt: string } | 
     );
 }
 
-// ─── Mobile: sticky-scroll pairs ─────────────────────────────────────────────
-// Each section gets a 200vh tall wrapper. The text card is sticky at the top,
-// so it stays pinned while you scroll. The image then scrolls up over it,
-// and once the wrapper exits the viewport the next pair begins.
+// ─── Mobile: tap-to-expand accordion ────────────────────────────────────────
 
 function MobileAboutGrid({ images }: Props) {
+    const [activeId, setActiveId] = useState<AboutImageKey | null>("philosophy");
+
     return (
-        <div className="lg:hidden">
+        <div className="lg:hidden divide-y divide-ink/10 border-y border-ink/10">
             {SECTIONS.map((section) => {
+                const isOpen = activeId === section.id;
                 const image = images?.[section.id];
                 const isOptimized = image ? isAllowedImageHost(image.url) : false;
 
                 return (
-                    /*
-                     * No fixed height — the wrapper is as tall as its contents
-                     * (card + image) in normal flow. The sticky card pins to top-0
-                     * on scroll, and the image (z-20) scrolls up over it.
-                     * No overflow on this element — that would break sticky.
-                     */
-                    <div key={section.id} className="relative">
-                        {/* Text card */}
-                        <div className="sticky top-0 z-10 flex w-full flex-col justify-center border-b border-ink/10 bg-paper px-6 py-8">
-                            <p className="label-caps mb-2 text-stone-text">{section.label}</p>
-                            <h3 className="heading-3 text-ink">{section.title}</h3>
-                            <div className="mt-4">
+                    <div key={section.id}>
+                        {/* Tappable header */}
+                        <button
+                            type="button"
+                            aria-expanded={isOpen}
+                            onClick={() => setActiveId((prev) => prev === section.id ? null : section.id)}
+                            className={`flex w-full items-center justify-between px-5 py-5 text-left transition-colors duration-200 ${
+                                isOpen ? "bg-ink text-paper" : "bg-paper text-ink"
+                            }`}
+                        >
+                            <div>
+                                <p className={`label-caps mb-1 ${isOpen ? "text-paper/50" : "text-stone-text"}`}>
+                                    {section.label}
+                                </p>
+                                <h3 className="heading-3">{section.title}</h3>
+                            </div>
+                            <span
+                                aria-hidden
+                                className={`ml-4 flex size-8 shrink-0 items-center justify-center rounded-full border text-lg font-light transition-all duration-300 ${
+                                    isOpen ? "border-paper/30 text-lime" : "border-ink/20 text-stone-text"
+                                }`}
+                            >
+                                {isOpen ? "−" : "+"}
+                            </span>
+                        </button>
+
+                        {/* Expandable body */}
+                        <div
+                            className={`overflow-hidden transition-all duration-500 ease-out ${
+                                isOpen ? "max-h-[600px] opacity-100" : "max-h-0 opacity-0"
+                            }`}
+                        >
+                            <div className="bg-ink px-5 pb-5">
                                 {section.id === "values" ? (
-                                    <div className="space-y-3">
+                                    <div className="grid grid-cols-2 gap-3 pb-4 pt-1">
                                         {VALUES.map((v) => (
-                                            <div key={v.title}>
-                                                <h4 className="label-caps text-ink">{v.title}</h4>
-                                                <p className="mt-1 text-xs leading-relaxed text-stone-text">{v.body}</p>
+                                            <div key={v.title} className="border border-paper/10 p-3">
+                                                <h4 className="label-caps text-lime">{v.title}</h4>
+                                                <p className="mt-1 text-xs leading-relaxed text-paper/70">{v.body}</p>
                                             </div>
                                         ))}
                                     </div>
                                 ) : (
-                                    <p className="text-sm leading-relaxed text-stone-text">{section.body}</p>
+                                    <p className="pb-4 pt-1 text-sm leading-relaxed text-paper/80">{section.body}</p>
                                 )}
+                                <div className="relative aspect-[16/9] w-full overflow-hidden">
+                                    {image ? (
+                                        isOptimized ? (
+                                            <Image src={image.url} alt={image.alt} fill sizes="100vw" className="object-cover" />
+                                        ) : (
+                                            // eslint-disable-next-line @next/next/no-img-element
+                                            <img src={image.url} alt={image.alt} className="h-full w-full object-cover" />
+                                        )
+                                    ) : (
+                                        <div className="h-full w-full bg-paper/5" />
+                                    )}
+                                </div>
                             </div>
-                        </div>
-
-                        {/* Image — scrolls up over the sticky card */}
-                        <div className="relative z-20 aspect-[16/9] w-full overflow-hidden bg-ink/5">
-                            {image ? (
-                                isOptimized ? (
-                                    <Image src={image.url} alt={image.alt} fill sizes="100vw" className="object-cover" />
-                                ) : (
-                                    // eslint-disable-next-line @next/next/no-img-element
-                                    <img src={image.url} alt={image.alt} className="h-full w-full object-cover" />
-                                )
-                            ) : (
-                                <div className="h-full w-full animate-pulse bg-ink/10" />
-                            )}
                         </div>
                     </div>
                 );
