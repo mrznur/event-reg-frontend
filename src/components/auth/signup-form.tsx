@@ -19,11 +19,15 @@ const signupSchema = z.object({
         .string()
         .min(8, { error: "Password must be at least 8 characters." })
         .max(72, { error: "Password must be 72 characters or fewer." }),
+    confirmPassword: z.string(),
+}).refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match.",
+    path: ["confirmPassword"],
 });
 
 const codeSchema = z.string().length(6, { error: "Enter the 6-digit code." });
 
-type FieldErrors = { name?: string; email?: string; password?: string };
+type FieldErrors = { name?: string; email?: string; password?: string; confirmPassword?: string };
 
 export function SignupForm() {
     const router = useRouter();
@@ -53,6 +57,7 @@ export function SignupForm() {
             name: String(data.get("name") ?? "").trim(),
             email: String(data.get("email") ?? "").trim(),
             password: String(data.get("password") ?? ""),
+            confirmPassword: String(data.get("confirmPassword") ?? ""),
         };
 
         const result = signupSchema.safeParse(input);
@@ -62,6 +67,7 @@ export function SignupForm() {
                 name: flat.name?.[0],
                 email: flat.email?.[0],
                 password: flat.password?.[0],
+                confirmPassword: flat.confirmPassword?.[0],
             });
             setFormErrors([]);
             return;
@@ -71,9 +77,12 @@ export function SignupForm() {
         setFormErrors([]);
         setPending(true);
 
+        // Strip confirmPassword before sending to the API
+        const { confirmPassword: _, ...signupData } = result.data;
+
         try {
-            await signup(result.data);
-            setEmail(result.data.email);
+            await signup(signupData);
+            setEmail(signupData.email);
             setStep("verify");
         } catch (error) {
             setFormErrors(
@@ -259,6 +268,15 @@ export function SignupForm() {
                 autoComplete="new-password"
                 hint="8 to 72 characters."
                 error={fieldErrors.password}
+            />
+
+            <FormField
+                name="confirmPassword"
+                label="Confirm password"
+                type="password"
+                autoComplete="new-password"
+                placeholder="Re-enter your password"
+                error={fieldErrors.confirmPassword}
             />
 
             <button
