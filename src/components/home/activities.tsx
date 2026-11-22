@@ -1,33 +1,30 @@
 import { SlideIn } from "@/components/motion/reveal";
+import { AsteroidBg } from "@/components/shared/asteroid-bg";
 import { ActivityCard } from "./activity-card";
 
 const ACTIVITIES = [
     {
         category: "Hackathons & Competitions",
         heading: "Build. Compete. Innovate.",
-        description:
-            "Programming competitions, hackathons, robotics contests, and innovation challenges where you push your limits and ship real work under pressure.",
+        description: "Programming competitions, hackathons, robotics contests, and innovation challenges where you push your limits and ship real work under pressure.",
         href: "/events?category=HACKATHON",
     },
     {
         category: "Technical Workshops",
         heading: "Learn Practical Skills.",
-        description:
-            "Hands-on sessions covering web development, AI, cybersecurity, electronics, and more — taught by seniors and industry professionals.",
+        description: "Hands-on sessions covering web development, AI, cybersecurity, electronics, and more — taught by seniors and industry professionals.",
         href: "/events?category=WORKSHOP",
     },
     {
         category: "Seminars & Talks",
         heading: "Learn From the Best.",
-        description:
-            "Industry experts, alumni, and academics share knowledge on technology, careers, and the future of computing.",
+        description: "Industry experts, alumni, and academics share knowledge on technology, careers, and the future of computing.",
         href: "/events?category=TALK",
     },
     {
         category: "Projects & Research",
         heading: "Turn Ideas Into Reality.",
-        description:
-            "Collaborative software and hardware projects, research initiatives, and experimental technology work that goes beyond the classroom.",
+        description: "Collaborative software and hardware projects, research initiatives, and experimental technology work that goes beyond the classroom.",
         href: "/events",
     },
 ] as const;
@@ -38,19 +35,7 @@ export function Activities() {
             aria-labelledby="activities-heading"
             className="relative isolate scroll-mt-16 overflow-hidden border-t border-ink/10 md:scroll-mt-20"
         >
-            {/* Asteroid bg */}
-            <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
-                <div className="asteroid-field">
-                    <span className="asteroid-fragment fragment-1" />
-                    <span className="asteroid-fragment fragment-2" />
-                    <span className="asteroid-fragment fragment-3" />
-                    <span className="asteroid-fragment fragment-4" />
-                    <span className="asteroid-fragment fragment-5" />
-                    <span className="asteroid-fragment fragment-6" />
-                    <span className="asteroid-fragment fragment-7" />
-                    <span className="asteroid-fragment fragment-8" />
-                </div>
-            </div>
+            <AsteroidBg />
 
             <div className="mx-auto max-w-[1440px] px-4 py-16 md:px-6 md:py-24 lg:px-8">
                 <div className="mb-12 grid gap-6 md:grid-cols-2">

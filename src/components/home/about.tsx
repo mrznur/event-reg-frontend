@@ -1,6 +1,7 @@
 import { CtaLink } from "@/components/shared/cta-link";
 import { SlideIn } from "@/components/motion/reveal";
 import { AsteroidBg } from "@/components/shared/asteroid-bg";
+import { SectionHeading } from "@/components/shared/section-heading";
 
 const VALUES = [
     { title: "Innovation", body: "Pushing boundaries and embracing new technologies to solve complex problems.", delay: 0 },
@@ -26,7 +27,6 @@ export function About() {
                     <SlideIn delay={300}>of Tomorrow.</SlideIn>
                 </h2>
 
-                {/* Description + mission/vision side by side */}
                 <div className="mt-16 grid items-stretch gap-6 md:grid-cols-2">
                     <SlideIn delay={100} className="h-full">
                         <div className="flex h-full border border-ink/10 p-6">
@@ -59,7 +59,6 @@ export function About() {
                     </SlideIn>
                 </div>
 
-                {/* Core values */}
                 <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
                     {VALUES.map((v) => (
                         <SlideIn key={v.title} delay={v.delay}>

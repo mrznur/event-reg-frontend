@@ -1,5 +1,5 @@
 import { getStats } from "@/lib/api";
-import { SlideIn } from "@/components/motion/reveal";
+import { SectionHeading } from "@/components/shared/section-heading";
 import { StatCounter } from "./stat-counter";
 
 export function ImpactStatsFallback() {
@@ -49,11 +49,14 @@ export async function ImpactStats() {
             className="on-ink scroll-mt-20 bg-ink text-paper md:scroll-mt-24"
         >
             <div className="mx-auto max-w-[1440px] px-4 py-16 md:px-6 md:py-24 lg:px-8">
-                <SlideIn><p className="label-caps text-paper/60">Our impact</p></SlideIn>
-                <h2 id="impact-heading" className="heading-2 mt-2 text-paper">
-                    <SlideIn>Numbers That{" "}</SlideIn>
-                    <SlideIn delay={150}><span className="text-paper/50">Speak for Themselves.</span></SlideIn>
-                </h2>
+                <SectionHeading
+                    eyebrow="Our impact"
+                    headingId="impact-heading"
+                    line1="Numbers That"
+                    line2="Speak for Themselves."
+                    eyebrowClassName="text-paper/60"
+                    line2ClassName="text-paper/50"
+                />
 
                 {items ? (
                     <dl className="mt-12 grid grid-cols-2 gap-x-6 gap-y-10 lg:grid-cols-4 lg:gap-10">
