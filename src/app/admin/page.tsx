@@ -1,7 +1,12 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import Link from "next/link";
 import { Users, CalendarDays } from "lucide-react";
 import { adminGetUsers, adminGetEvents } from "@/lib/api";
+
+export const metadata: Metadata = {
+    title: "Admin",
+};
 
 async function AdminStats() {
     const [users, events] = await Promise.all([

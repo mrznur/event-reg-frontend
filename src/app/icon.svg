@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
+  <!-- Splash blob background in lime -->
+  <rect x="3" y="4" width="26" height="24" rx="5" fill="#111111"/>
+  <!-- Rough edge blobs for the splash feel -->
+  <circle cx="3" cy="8" r="2.5" fill="#111111"/>
+  <circle cx="29" cy="8" r="2" fill="#111111"/>
+  <circle cx="3" cy="24" r="2" fill="#111111"/>
+  <circle cx="29" cy="25" r="2.5" fill="#111111"/>
+  <circle cx="16" cy="2" r="1.5" fill="#111111"/>
+  <circle cx="16" cy="30" r="1.5" fill="#111111"/>
+  <!-- BUCC text in white -->
+  <text
+    x="16"
+    y="21"
+    text-anchor="middle"
+    font-family="system-ui, -apple-system, sans-serif"
+    font-size="11"
+    font-weight="800"
+    letter-spacing="-0.5"
+    fill="#ffffff"
+  >BUCC</text>
+</svg>

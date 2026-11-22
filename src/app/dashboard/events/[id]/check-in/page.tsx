@@ -1,9 +1,14 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getMyEventById, ApiError } from "@/lib/api";
 import { Scanner } from "@/components/checkin/scanner";
 import { ManualSearch } from "@/components/checkin/manual-search";
+
+export const metadata: Metadata = {
+    title: "Check-in",
+};
 
 interface Props {
     params: Promise<{ id: string }>;

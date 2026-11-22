@@ -1,6 +1,11 @@
-﻿import { Suspense } from "react";
+﻿import type { Metadata } from "next";
+import { Suspense } from "react";
 import { adminGetUsers } from "@/lib/api";
 import { AdminUsersTable } from "@/components/admin/users-table";
+
+export const metadata: Metadata = {
+    title: "Users",
+};
 
 async function UsersContent() {
     const users = await adminGetUsers();

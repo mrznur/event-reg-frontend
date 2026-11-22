@@ -1,6 +1,11 @@
-﻿import { Suspense } from "react";
+﻿import type { Metadata } from "next";
+import { Suspense } from "react";
 import { adminGetEvents } from "@/lib/api";
 import { AdminEventsTable } from "@/components/admin/events-table";
+
+export const metadata: Metadata = {
+    title: "Events",
+};
 
 async function EventsContent() {
     const events = await adminGetEvents();

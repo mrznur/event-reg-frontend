@@ -1,8 +1,13 @@
-﻿import { Suspense } from "react";
+﻿import type { Metadata } from "next";
+import { Suspense } from "react";
 import Link from "next/link";
 import { Plus } from "lucide-react";
 import { getMyEvents } from "@/lib/api";
 import { DashboardEventsTable } from "@/components/dashboard/events-table";
+
+export const metadata: Metadata = {
+    title: "My Events",
+};
 
 async function EventsContent() {
     const events = await getMyEvents();
@@ -14,7 +19,6 @@ export default function DashboardPage() {
         <div>
             <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
                 <div>
-                    <p className="label-caps text-stone-text">Organizer Dashboard</p>
                     <h1 className="heading-3 mt-1">My Events</h1>
                 </div>
                 <Link

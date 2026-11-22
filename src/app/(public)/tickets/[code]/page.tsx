@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import Link from "next/link";
@@ -5,6 +6,10 @@ import { Calendar, MapPin, CheckCircle, Clock, XCircle } from "lucide-react";
 import { getTicket, ApiError } from "@/lib/api";
 import { categoryLabel, formatDateLong, isAllowedImageHost } from "@/lib/events";
 import { QRCode } from "@/components/tickets/qr-code";
+
+export const metadata: Metadata = {
+    title: "Your Ticket",
+};
 
 interface Props {
     params: Promise<{ code: string }>;

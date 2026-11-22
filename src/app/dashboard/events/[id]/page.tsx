@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -5,6 +6,10 @@ import { Calendar, MapPin, Users, ExternalLink } from "lucide-react";
 import { getMyEventById, ApiError } from "@/lib/api";
 import { formatDateLong } from "@/lib/events";
 import { EventStatusActions } from "@/components/dashboard/event-status-actions";
+
+export const metadata: Metadata = {
+    title: "Manage Event",
+};
 
 interface Props {
     params: Promise<{ id: string }>;

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { AsteroidBg } from "@/components/shared/asteroid-bg";
 
 export const metadata: Metadata = {
-    title: "Register | BUCC",
+    title: "Register",
     robots: { index: false, follow: false },
 };
 

@@ -1,4 +1,5 @@
 
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
@@ -24,6 +25,16 @@ import { AvailabilityChip } from "@/components/events/availability-chip";
 
 interface Props {
     params: Promise<{ slug: string }>;
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+    const { slug } = await params;
+    try {
+        const event = await getEventBySlug(slug);
+        return { title: event.title };
+    } catch {
+        return { title: "Event" };
+    }
 }
 
 async function EventDetail({
