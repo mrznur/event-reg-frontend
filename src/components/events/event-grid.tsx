@@ -18,9 +18,13 @@ export function EventGrid({ events }: Props) {
     }
 
     return (
-        <ul className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {events.map((event) => (
-                <li key={event.id}>
+        <ul className="grid grid-cols-1 items-stretch gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {events.map((event, i) => (
+                <li
+                    key={event.id}
+                    className="fade-up flex"
+                    style={{ animationDelay: `${i * 80}ms` }}
+                >
                     <EventCard event={event} />
                 </li>
             ))}

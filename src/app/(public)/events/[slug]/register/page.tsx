@@ -1,10 +1,26 @@
+
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
+import { connection } from "next/server";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeft, Calendar, MapPin } from "lucide-react";
+import {
+    ArrowLeft,
+    Calendar,
+    MapPin,
+    Clock,
+    Users,
+    ArrowUpRight,
+} from "lucide-react";
+
 import { getEventBySlug, ApiError } from "@/lib/api";
-import { canRegister, categoryLabel, formatDateLong, isAllowedImageHost } from "@/lib/events";
+import {
+    canRegister,
+    categoryLabel,
+    formatDateLong,
+    isAllowedImageHost,
+} from "@/lib/events";
+
 import { AvailabilityChip } from "@/components/events/availability-chip";
 import { RegistrationForm } from "@/components/events/registration-form";
 
@@ -12,10 +28,15 @@ interface Props {
     params: Promise<{ slug: string }>;
 }
 
-async function RegisterContent({ params }: { params: Promise<{ slug: string }> }) {
+async function RegisterContent({
+    params,
+}: {
+    params: Promise<{ slug: string }>;
+}) {
     const { slug } = await params;
 
     let event;
+
     try {
         event = await getEventBySlug(slug);
     } catch (err) {
@@ -25,123 +46,235 @@ async function RegisterContent({ params }: { params: Promise<{ slug: string }> }
         throw err;
     }
 
+    // Render subsequent code at request time.
+    // This allows canRegister() to safely evaluate the current date.
+    await connection();
+
     const isPicsumHost = isAllowedImageHost(event.coverImage);
-
-    // Closed / full — don't show the form
-    if (!canRegister(event)) {
-        return (
-            <div className="mx-auto max-w-2xl">
-                <Link
-                    href={`/events/${event.slug}`}
-                    className="group label-caps mb-8 inline-flex items-center gap-2 text-stone-text hover:text-ink"
-                >
-                    <ArrowLeft aria-hidden className="size-4 transition-transform duration-300 group-hover:-translate-x-1" />
-                    Back to event
-                </Link>
-
-                <div className="border border-ink/10 p-8 text-center">
-                    <AvailabilityChip event={event} showSpots />
-                    <p className="mt-4 text-base text-stone-text">
-                        {event.spotsLeft === 0
-                            ? "This event is fully booked."
-                            : "Registrations for this event are closed."}
-                    </p>
-                    <Link
-                        href={`/events/${event.slug}`}
-                        className="label-caps mt-6 inline-block underline underline-offset-8 hover:text-stone-text"
-                    >
-                        View event details
-                    </Link>
-                </div>
-            </div>
-        );
-    }
+    const registrationOpen = canRegister(event);
 
     return (
-        <div className="mx-auto max-w-2xl">
-            {/* Back link */}
+        <div className="mx-auto max-w-6xl">
+            {/* Back navigation */}
             <Link
                 href={`/events/${event.slug}`}
-                className="group label-caps mb-8 inline-flex items-center gap-2 text-stone-text hover:text-ink"
+                className="group mb-10 inline-flex items-center gap-2 label-caps text-stone-text transition-colors hover:text-ink"
             >
-                <ArrowLeft aria-hidden className="size-4 transition-transform duration-300 group-hover:-translate-x-1" />
+                <ArrowLeft className="size-4 transition-transform duration-300 group-hover:-translate-x-1" />
                 Back to event
             </Link>
 
-            <div className="grid gap-8 md:grid-cols-[1fr_360px]">
-                {/* Left — event summary */}
-                <div>
-                    {/* Cover image */}
-                    <div className="relative mb-6 aspect-[3/2] overflow-hidden bg-stone/10">
-                        {isPicsumHost ? (
-                            <Image
-                                src={event.coverImage}
-                                alt={event.title}
-                                fill
-                                priority
-                                sizes="(max-width: 768px) 100vw, 360px"
-                                className="object-cover"
-                            />
-                        ) : (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img
-                                src={event.coverImage}
-                                alt={event.title}
-                                className="h-full w-full object-cover"
-                            />
-                        )}
-                    </div>
-
-                    {/* Category + chip */}
-                    <div className="mb-3 flex flex-wrap items-center gap-3">
-                        <span className="label-caps text-stone-text">
-                            {categoryLabel(event.category)}
-                        </span>
+            {!registrationOpen ? (
+                <div className="mx-auto max-w-2xl border border-ink/10 bg-paper">
+                    <div className="border-b border-ink/10 bg-stone/5 px-6 py-8 text-center">
                         <AvailabilityChip event={event} showSpots />
+
+                        <h1 className="mt-5 text-2xl font-bold tracking-tight text-ink">
+                            {event.spotsLeft === 0
+                                ? "This event is fully booked."
+                                : "Registration is currently closed."}
+                        </h1>
+
+                        <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-stone-text">
+                            {event.spotsLeft === 0
+                                ? "All available spots for this event have been filled. You can still visit the event page for more details."
+                                : "Registration for this event is no longer available. Visit the event page to check the event details."}
+                        </p>
                     </div>
 
-                    {/* Title */}
-                    <h1 className="heading-3 mb-4">{event.title}</h1>
-
-                    {/* Meta */}
-                    <div className="flex flex-col gap-2 text-sm text-stone-text">
-                        <span className="flex items-center gap-2">
-                            <Calendar aria-hidden className="size-4 shrink-0" />
-                            <time dateTime={event.startsAt}>
-                                {formatDateLong(event.startsAt, event.timezone)}
-                            </time>
-                        </span>
-                        <span className="flex items-center gap-2">
-                            <MapPin aria-hidden className="size-4 shrink-0" />
-                            <span>{event.venue}</span>
-                        </span>
+                    <div className="p-6 text-center">
+                        <Link
+                            href={`/events/${event.slug}`}
+                            className="group inline-flex items-center gap-2 bg-ink px-6 py-3.5 label-caps text-paper transition-colors hover:bg-ink/80"
+                        >
+                            View event details
+                            <ArrowUpRight className="size-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                        </Link>
                     </div>
                 </div>
+            ) : (
+                <>
+                    {/* Page heading */}
+                    <div className="mb-10 max-w-2xl">
+                        <p className="label-caps text-stone-text">
+                            BUCC / Event registration
+                        </p>
 
-                {/* Right — registration form */}
-                <div className="h-fit border border-ink/10 bg-paper p-6 md:sticky md:top-24">
-                    <RegistrationForm slug={event.slug} />
-                </div>
-            </div>
+                        <h1 className="mt-3 text-4xl font-bold tracking-tight text-ink md:text-5xl">
+                            Save your spot.
+                        </h1>
+
+                        <p className="mt-4 max-w-lg text-sm leading-7 text-stone-text md:text-base">
+                            Complete the registration form to secure your place
+                            at this event. We&apos;ll send your confirmation and
+                            ticket details to your email.
+                        </p>
+                    </div>
+
+                    {/* Main layout */}
+                    <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_420px] lg:gap-12">
+                        {/* Event information */}
+                        <section className="min-w-0">
+                            {/* Cover image */}
+                            <div className="group relative aspect-[16/9] overflow-hidden bg-stone/10">
+                                {isPicsumHost ? (
+                                    <Image
+                                        src={event.coverImage}
+                                        alt={event.title}
+                                        fill
+                                        priority
+                                        sizes="(max-width: 1024px) 100vw, 60vw"
+                                        className="object-cover transition-transform duration-700 group-hover:scale-[1.02]"
+                                    />
+                                ) : (
+                                    // eslint-disable-next-line @next/next/no-img-element
+                                    <img
+                                        src={event.coverImage}
+                                        alt={event.title}
+                                        className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.02]"
+                                    />
+                                )}
+
+                                <div className="absolute inset-0 bg-gradient-to-t from-ink/50 via-transparent to-transparent" />
+
+                                <div className="absolute bottom-4 left-4 flex flex-wrap items-center gap-2">
+                                    <span className="bg-paper px-3 py-2 label-caps text-ink">
+                                        {categoryLabel(event.category)}
+                                    </span>
+
+                                    <AvailabilityChip event={event} showSpots />
+                                </div>
+                            </div>
+
+                            {/* Event details */}
+                            <div className="border-b border-ink/10 py-7">
+                                <p className="label-caps text-stone-text">
+                                    You&apos;re registering for
+                                </p>
+
+                                <h2 className="mt-3 text-3xl font-bold leading-tight tracking-tight text-ink md:text-4xl">
+                                    {event.title}
+                                </h2>
+
+                                <div className="mt-7 grid gap-4 sm:grid-cols-2">
+                                    <div className="flex items-start gap-3 border border-ink/10 bg-paper p-4">
+                                        <div className="flex size-10 shrink-0 items-center justify-center bg-lime/20 text-ink">
+                                            <Calendar className="size-5" />
+                                        </div>
+
+                                        <div className="min-w-0">
+                                            <p className="label-caps text-stone-text">
+                                                Date & time
+                                            </p>
+
+                                            <time
+                                                dateTime={event.startsAt}
+                                                className="mt-2 block text-sm font-medium leading-6 text-ink"
+                                            >
+                                                {formatDateLong(
+                                                    event.startsAt,
+                                                    event.timezone,
+                                                )}
+                                            </time>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-start gap-3 border border-ink/10 bg-paper p-4">
+                                        <div className="flex size-10 shrink-0 items-center justify-center bg-lime/20 text-ink">
+                                            <MapPin className="size-5" />
+                                        </div>
+
+                                        <div className="min-w-0">
+                                            <p className="label-caps text-stone-text">
+                                                Venue
+                                            </p>
+
+                                            <p className="mt-2 text-sm font-medium leading-6 text-ink">
+                                                {event.venue}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Registration guidance */}
+                            <div className="flex items-start gap-3 py-6">
+                                <div className="flex size-9 shrink-0 items-center justify-center bg-ink text-lime">
+                                    <Users className="size-4" />
+                                </div>
+
+                                <div>
+                                    <p className="label-caps text-ink">
+                                        Before you register
+                                    </p>
+
+                                    <p className="mt-1 text-sm leading-6 text-stone-text">
+                                        Make sure your name, email address, and
+                                        phone number are correct. Your ticket
+                                        confirmation will be sent to the email
+                                        address you provide.
+                                    </p>
+                                </div>
+                            </div>
+                        </section>
+
+                        {/* Registration form */}
+                        <aside className="min-w-0 lg:sticky lg:top-24">
+                            <div className="border border-ink/10 bg-paper shadow-sm">
+                                <div className="border-b border-ink/10 bg-ink px-6 py-5">
+                                    <p className="label-caps text-lime">
+                                        Registration
+                                    </p>
+
+                                    <h2 className="mt-2 text-xl font-bold text-paper">
+                                        Get your event ticket
+                                    </h2>
+
+                                    <p className="mt-2 text-sm leading-6 text-paper/60">
+                                        Enter your details to reserve your spot.
+                                    </p>
+                                </div>
+
+                                <div className="p-5 sm:p-6">
+                                    <RegistrationForm slug={event.slug} />
+                                </div>
+                            </div>
+
+                            <p className="mt-4 flex items-center justify-center gap-2 text-center text-xs text-stone-text">
+                                <Clock className="size-3.5" />
+                                Registration confirmation is sent by email.
+                            </p>
+                        </aside>
+                    </div>
+                </>
+            )}
         </div>
     );
 }
 
 export default function RegisterPage({ params }: Props) {
     return (
-        <div className="mx-auto max-w-[1440px] px-4 py-16 md:px-6 md:py-24 lg:px-8">
+        <main className="mx-auto max-w-[1440px] px-4 py-12 md:px-6 md:py-16 lg:px-8 lg:py-20">
             <Suspense
                 fallback={
-                    <div className="mx-auto max-w-2xl animate-pulse space-y-6">
-                        <div className="h-5 w-32 rounded-sm bg-stone/10" />
-                        <div className="aspect-[3/2] w-full rounded-sm bg-stone/10" />
-                        <div className="h-8 w-2/3 rounded-sm bg-stone/10" />
-                        <div className="h-40 rounded-sm bg-stone/10" />
+                    <div className="mx-auto max-w-6xl animate-pulse space-y-8">
+                        <div className="h-4 w-32 bg-stone/10" />
+                        <div className="h-12 w-2/3 bg-stone/10" />
+
+                        <div className="grid gap-8 lg:grid-cols-[1fr_420px]">
+                            <div className="space-y-5">
+                                <div className="aspect-[16/9] bg-stone/10" />
+                                <div className="h-10 w-3/4 bg-stone/10" />
+                                <div className="h-24 bg-stone/10" />
+                            </div>
+
+                            <div className="h-[520px] bg-stone/10" />
+                        </div>
                     </div>
                 }
             >
                 <RegisterContent params={params} />
             </Suspense>
-        </div>
+        </main>
     );
 }

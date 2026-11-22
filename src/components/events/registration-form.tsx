@@ -1,7 +1,8 @@
+
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { CheckCircle } from "lucide-react";
+import { CheckCircle, ArrowRight, Ticket } from "lucide-react";
 import * as z from "zod";
 import { registerForEvent, ApiError } from "@/lib/api";
 import { FormField } from "@/components/shared/form-field";
@@ -35,6 +36,7 @@ export function RegistrationForm({ slug }: Props) {
         };
 
         const result = schema.safeParse(input);
+
         if (!result.success) {
             const flat = z.flattenError(result.error).fieldErrors;
             setFieldErrors({
@@ -66,76 +68,122 @@ export function RegistrationForm({ slug }: Props) {
     // Success state
     if (ticketCode) {
         return (
-            <div className="border border-ink/10 bg-paper p-6">
-                <div className="flex items-center gap-3 text-ink">
-                    <CheckCircle aria-hidden className="size-6 shrink-0" />
-                    <h3 className="label-caps">You&apos;re registered!</h3>
+            <div className="overflow-hidden border border-ink/10 bg-paper">
+                <div className="border-b border-ink/10 bg-lime/10 px-6 py-5">
+                    <div className="flex items-center gap-3">
+                        <div className="flex size-11 shrink-0 items-center justify-center bg-lime text-ink">
+                            <CheckCircle aria-hidden className="size-6" />
+                        </div>
+                        <div>
+                            <p className="label-caps text-ink">Registration successful</p>
+                            <h3 className="mt-1 text-xl font-bold text-ink">
+                                You&apos;re registered!
+                            </h3>
+                        </div>
+                    </div>
                 </div>
-                <p className="mt-4 text-sm text-stone-text">
-                    Your ticket code is below. A confirmation has been sent to your email.
-                </p>
-                <div className="mt-4 border border-ink/15 bg-ink px-5 py-4 text-center">
-                    <p className="label-caps text-paper/60">Ticket code</p>
-                    <p className="mt-1 font-mono text-2xl font-bold tracking-widest text-lime">
-                        {ticketCode}
+
+                <div className="p-6">
+                    <p className="text-sm leading-6 text-stone-text">
+                        Your registration is confirmed. We&apos;ve sent a confirmation
+                        to your email. Keep your ticket code safe.
                     </p>
+
+                    <div className="mt-6 border border-ink/10 bg-ink px-5 py-6 text-center">
+                        <div className="flex items-center justify-center gap-2 text-paper/60">
+                            <Ticket aria-hidden className="size-4" />
+                            <p className="label-caps">Your ticket code</p>
+                        </div>
+                        <p className="mt-3 break-all font-mono text-2xl font-bold tracking-widest text-lime">
+                            {ticketCode}
+                        </p>
+                    </div>
+
+                    <a
+                        href={`/tickets/${ticketCode}`}
+                        className="group label-caps mt-5 inline-flex w-full items-center justify-center gap-3 bg-lime px-6 py-4 text-ink transition-colors hover:bg-lime-400"
+                    >
+                        View your ticket & QR code
+                        <ArrowRight aria-hidden className="size-4 transition-transform group-hover:translate-x-1" />
+                    </a>
                 </div>
-                <a
-                    href={`/tickets/${ticketCode}`}
-                    className="group label-caps mt-4 inline-flex w-full cursor-pointer items-center justify-center gap-2 bg-lime px-6 py-3.5 text-ink transition duration-300 hover:bg-lime-400"
-                >
-                    View your ticket &amp; QR code
-                </a>
             </div>
         );
     }
 
     return (
-        <form onSubmit={handleSubmit} noValidate className="space-y-5">
-            <h3 className="label-caps text-stone-text">Register for this event</h3>
+        <div className="border border-ink/10 bg-paper">
+            {/* Header */}
+            <div className="border-b border-ink/10 px-6 py-6">
+                <p className="label-caps text-stone-text">Secure your spot</p>
+                <h3 className="mt-2 text-2xl font-bold tracking-tight text-ink">
+                    Register for this event
+                </h3>
+                <p className="mt-2 text-sm leading-6 text-stone-text">
+                    Fill in your details below to complete your event registration.
+                </p>
+            </div>
 
-            {formErrors.length > 0 && (
-                <div role="alert" className="border border-error px-4 py-3 text-sm text-error">
-                    {formErrors.map((msg) => (
-                        <p key={msg}>{msg}</p>
-                    ))}
+            {/* Form */}
+            <form onSubmit={handleSubmit} noValidate className="space-y-5 p-6">
+                {formErrors.length > 0 && (
+                    <div
+                        role="alert"
+                        className="border border-error/30 bg-error/5 px-4 py-3 text-sm text-error"
+                    >
+                        {formErrors.map((msg) => (
+                            <p key={msg}>{msg}</p>
+                        ))}
+                    </div>
+                )}
+
+                <FormField
+                    name="name"
+                    label="Full name"
+                    type="text"
+                    autoComplete="name"
+                    placeholder="Your full name"
+                    error={fieldErrors.name}
+                />
+
+                <FormField
+                    name="email"
+                    label="Email address"
+                    type="email"
+                    autoComplete="email"
+                    placeholder="you@example.com"
+                    error={fieldErrors.email}
+                />
+
+                <FormField
+                    name="phone"
+                    label="Phone number"
+                    type="tel"
+                    autoComplete="tel"
+                    placeholder="+880 1700 000000"
+                    error={fieldErrors.phone}
+                />
+
+                <div className="pt-2">
+                    <button
+                        type="submit"
+                        disabled={pending}
+                        className="group label-caps inline-flex w-full cursor-pointer items-center justify-center gap-3 bg-lime px-6 py-4 text-ink transition-colors hover:bg-lime-400 disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                        {pending ? "Registering..." : "Complete registration"}
+                        {!pending && (
+                            <ArrowRight
+                                aria-hidden
+                                className="size-4 transition-transform group-hover:translate-x-1"
+                            />
+                        )}
+                    </button>
+
+                    <p className="mt-3 text-center text-xs leading-5 text-stone-text">
+                        Your information will only be used for event registration.
+                    </p>
                 </div>
-            )}
-
-            <FormField
-                name="name"
-                label="Full name"
-                type="text"
-                autoComplete="name"
-                placeholder="Your full name"
-                error={fieldErrors.name}
-            />
-
-            <FormField
-                name="email"
-                label="Email"
-                type="email"
-                autoComplete="email"
-                placeholder="you@example.com"
-                error={fieldErrors.email}
-            />
-
-            <FormField
-                name="phone"
-                label="Phone number"
-                type="tel"
-                autoComplete="tel"
-                placeholder="+880 1700 000000"
-                error={fieldErrors.phone}
-            />
-
-            <button
-                type="submit"
-                disabled={pending}
-                className="label-caps inline-flex w-full cursor-pointer items-center justify-center bg-lime px-6 py-3.5 text-ink hover:bg-lime/80 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-                {pending ? "Registering…" : "Register now"}
-            </button>
-        </form>
+            </form>
+        </div>
     );
 }

@@ -62,7 +62,7 @@ export function About() {
                 <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
                     {VALUES.map((v) => (
                         <SlideIn key={v.title} delay={v.delay}>
-                            <div className="border border-ink/10 p-6">
+                            <div className="fade-up border border-ink/10 p-6" style={{ animationDelay: `${v.delay}ms` }}>
                                 <h3 className="label-caps mb-3 text-ink">{v.title}</h3>
                                 <p className="text-base leading-relaxed text-stone-text">{v.body}</p>
                             </div>

@@ -12,7 +12,7 @@ export function ActivityCard({ category, heading, description, href }: Props) {
     return (
         <Link
             href={href}
-            className="group flex flex-col border border-ink/10 bg-paper p-6 transition-shadow duration-300 hover:shadow-md"
+            className="fade-up group flex flex-col border border-ink/10 bg-paper p-6 transition-shadow duration-300 hover:shadow-md"
         >
             <p className="label-caps text-stone-text">{category}</p>
             <h3 className="heading-3 mt-3 text-[1.25rem] leading-tight">{heading}</h3>

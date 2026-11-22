@@ -50,7 +50,7 @@ async function EventManage({ params }: { params: Promise<{ id: string }> }) {
                     { label: "Checked in", value: spotsUsed },
                     { label: "Spots left", value: event.spotsLeft },
                 ].map((c) => (
-                    <div key={c.label} className="border border-ink/10 p-5">
+                    <div key={c.label} className="fade-up border border-ink/10 p-5">
                         <p className="label-caps text-stone-text">{c.label}</p>
                         <p className="mt-1 text-3xl font-bold">{c.value}</p>
                     </div>
