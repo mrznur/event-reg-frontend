@@ -34,6 +34,26 @@ export async function getEventBySlug(slug: string): Promise<Event> {
     return data.event;
 }
 
+// ─── About images ────────────────────────────────────────────────────────────
+
+export type AboutImageKey = "philosophy" | "mission" | "vision" | "values";
+
+export interface AboutImage {
+    url: string;
+    alt: string;
+}
+
+export type AboutImages = Record<AboutImageKey, AboutImage>;
+
+export async function getAboutImages(): Promise<AboutImages | null> {
+    try {
+        const data = await request<{ images: AboutImages }>("/api/about-images");
+        return data.images;
+    } catch {
+        return null;
+    }
+}
+
 // ─── Stats ───────────────────────────────────────────────────────────────────
 
 export interface SiteStats {

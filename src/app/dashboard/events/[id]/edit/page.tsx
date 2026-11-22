@@ -1,7 +1,12 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { getMyEventById, ApiError } from "@/lib/api";
 import { EventForm } from "@/components/dashboard/event-form";
+
+export const metadata: Metadata = {
+    title: "Edit Event",
+};
 
 interface Props {
     params: Promise<{ id: string }>;

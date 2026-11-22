@@ -1,8 +1,13 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getMyEventById, getRegistrations, ApiError } from "@/lib/api";
 import { RegistrationsTable } from "@/components/dashboard/registrations-table";
+
+export const metadata: Metadata = {
+    title: "Registrations",
+};
 
 interface Props {
     params: Promise<{ id: string }>;
