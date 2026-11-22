@@ -1,4 +1,5 @@
 
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
@@ -26,6 +27,16 @@ import { RegistrationForm } from "@/components/events/registration-form";
 
 interface Props {
     params: Promise<{ slug: string }>;
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+    const { slug } = await params;
+    try {
+        const event = await getEventBySlug(slug);
+        return { title: `Register — ${event.title}` };
+    } catch {
+        return { title: "Register for Event" };
+    }
 }
 
 async function RegisterContent({

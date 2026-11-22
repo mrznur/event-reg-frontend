@@ -3,7 +3,7 @@ import { ForgotPasswordForm } from "@/components/auth/forgot-password-form";
 import { AsteroidBg } from "@/components/shared/asteroid-bg";
 
 export const metadata: Metadata = {
-    title: "Forgot Password | BUCC",
+    title: "Forgot Password",
 };
 
 export default function ForgotPasswordPage() {

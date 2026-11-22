@@ -3,7 +3,7 @@ import { SignupForm } from "@/components/auth/signup-form";
 import { AsteroidBg } from "@/components/shared/asteroid-bg";
 
 export const metadata: Metadata = {
-    title: "Organizer Register | BUCC",
+    title: "Organizer Register",
     robots: { index: false, follow: false },
 };
 

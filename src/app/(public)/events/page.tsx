@@ -19,7 +19,7 @@ async function EventsContent({ searchParams }: { searchParams: Promise<{ categor
 }
 
 export const metadata = {
-    title: "Events | BUCC",
+    title: "Events",
     description: "Browse and register for upcoming BUCC events.",
 };
 

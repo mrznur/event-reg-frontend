@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { AsteroidBg } from "@/components/shared/asteroid-bg";
 
 export const metadata: Metadata = {
-    title: "Log In | BUCC",
+    title: "Log In",
 };
 
 export default function LoginPage() {

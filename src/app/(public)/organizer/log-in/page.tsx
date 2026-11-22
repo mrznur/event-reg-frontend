@@ -3,7 +3,7 @@ import { LoginForm } from "@/components/auth/login-form";
 import { AsteroidBg } from "@/components/shared/asteroid-bg";
 
 export const metadata: Metadata = {
-    title: "Organizer Log In | BUCC",
+    title: "Organizer Log In",
 };
 
 export default function OrganizerLoginPage() {
