@@ -8,12 +8,12 @@ The public-facing and organizer-facing Next.js frontend for the BUCC Event Regis
 
 | Layer | Choice |
 |---|---|
-| Framework | Next.js 16 (App Router) |
-| Language | TypeScript |
+| Framework | Next.js 16 (App Router, Turbopack) |
+| Language | TypeScript 5 |
 | Styling | Tailwind CSS 4 |
 | Carousel | Embla Carousel |
 | QR Code | `qrcode` (generation) · `qr-scanner` (scanning) |
-| Validation | Zod |
+| Validation | Zod 4 |
 | Icons | Lucide React |
 
 ---
@@ -26,8 +26,9 @@ src/
 │   ├── (public)/           # All public routes
 │   │   ├── events/         # Event list, detail, register
 │   │   ├── tickets/[code]/ # Ticket page with QR code
-│   │   ├── log-in/         # User log in (future)
-│   │   ├── register/       # User register (future)
+│   │   ├── log-in/         # User log in (placeholder)
+│   │   ├── register/       # User register (placeholder)
+│   │   ├── sys/panel/      # Hidden admin login (noindex)
 │   │   └── organizer/      # Organizer log-in, register, forgot-password
 │   ├── dashboard/          # Organizer dashboard (auth guarded)
 │   │   └── events/[id]/    # Manage, edit, registrations, check-in
@@ -38,18 +39,18 @@ src/
 │   ├── checkin/            # QR scanner, manual search, check-in result
 │   ├── dashboard/          # Event form, events table, status actions, registrations table, logout
 │   ├── events/             # Event card, grid, availability chip, category filter, registration form
-│   ├── home/               # All homepage sections
+│   ├── home/               # All homepage sections + carousels
 │   ├── layout/             # Navbar, footer, mobile menu
 │   ├── motion/             # SlideIn animation
-│   ├── shared/             # CtaLink, FormField, HashScroll, Splash
+│   ├── shared/             # CtaLink, FormField, HashScroll, SectionHeading, Splash, AsteroidBg
 │   └── tickets/            # QR code canvas component
 │
 └── lib/
     ├── api.ts              # All API functions and TypeScript types
-    ├── constants.ts        # Site name, nav links, event categories
-    ├── events.ts           # Shared helpers: formatDate, canRegister, categoryLabel, isAllowedImageHost
+    ├── constants.ts        # Site name, nav links
+    ├── events.ts           # Helpers: formatDate, canRegister, categoryLabel, isAllowedImageHost
     ├── members.ts          # BUCC member photo data for the Why Join carousel
-    └── site-config.ts      # Email, location, social URLs — single source of truth
+    └── site-config.ts      # Email, location, social URLs
 ```
 
 ---
@@ -57,38 +58,43 @@ src/
 ## Pages
 
 ### Public
-| Route | Description |
-|---|---|
-| `/` | Homepage — event carousel, about, impact stats, activities, why join, contact |
-| `/events` | Event listing with category filter |
-| `/events/[slug]` | Event detail with register CTA |
-| `/events/[slug]/register` | Registration form (name, email, phone) |
-| `/tickets/[code]` | Ticket page with QR code and event details |
-| `/log-in` | User log in — coming soon |
-| `/register` | User register — coming soon |
+
+| Route | Tab title | Description |
+|---|---|---|
+| `/` | BUCC | Homepage — event carousel, about, impact stats, activities, why join, contact |
+| `/events` | Events \| BUCC | Event listing with category filter |
+| `/events/[slug]` | {Event title} \| BUCC | Event detail with register CTA |
+| `/events/[slug]/register` | Register — {title} \| BUCC | Registration form |
+| `/tickets/[code]` | Your Ticket \| BUCC | Ticket page with QR code |
+| `/log-in` | Log In \| BUCC | Coming soon placeholder |
+| `/register` | Register \| BUCC | Coming soon placeholder |
 
 ### Organizer Auth
-| Route | Description |
-|---|---|
-| `/organizer/log-in` | Organizer login with role-based redirect |
-| `/organizer/register` | Two-step organizer register (email verification) |
-| `/organizer/forgot-password` | Password reset via email code |
+
+| Route | Tab title | Description |
+|---|---|---|
+| `/organizer/log-in` | Organizer Log In \| BUCC | Login with role-based redirect |
+| `/organizer/register` | Organizer Register \| BUCC | Two-step register (email verification) |
+| `/organizer/forgot-password` | Forgot Password \| BUCC | Password reset via email code |
 
 ### Dashboard (requires ORGANIZER session)
-| Route | Description |
-|---|---|
-| `/dashboard` | Event list with counters |
-| `/dashboard/events/new` | Create event |
-| `/dashboard/events/[id]` | Manage event — counters, publish/unpublish/cancel |
-| `/dashboard/events/[id]/edit` | Edit event details |
-| `/dashboard/events/[id]/registrations` | Registrations table, search, CSV export |
-| `/dashboard/events/[id]/check-in` | QR scanner + manual search check-in |
+
+| Route | Tab title | Description |
+|---|---|---|
+| `/dashboard` | My Events \| BUCC | Event list |
+| `/dashboard/events/new` | New Event \| BUCC | Create event |
+| `/dashboard/events/[id]` | Manage Event \| BUCC | Counters, publish/unpublish/cancel |
+| `/dashboard/events/[id]/edit` | Edit Event \| BUCC | Edit event details |
+| `/dashboard/events/[id]/registrations` | Registrations \| BUCC | Table, search, CSV export |
+| `/dashboard/events/[id]/check-in` | Check-in \| BUCC | QR scanner + manual search |
 
 ### Admin (requires ADMIN session)
-| Route | Description |
-|---|---|
-| `/admin/users` | All users with delete |
-| `/admin/events` | All events with cancel |
+
+| Route | Tab title | Description |
+|---|---|---|
+| `/admin` | Admin \| BUCC | Overview with stats |
+| `/admin/users` | Users \| BUCC | All users with delete |
+| `/admin/events` | Events \| BUCC | All events with cancel |
 
 ---
 
@@ -97,18 +103,14 @@ src/
 ### Prerequisites
 
 - Node.js 20+
-- The NestJS backend running on port 4000 (or configured via `API_URL`)
+- The NestJS backend running (default port 4000)
 
 ### Setup
 
 ```bash
-# Install dependencies
 npm install
-
-# Copy environment file
 cp .env.example .env
-
-# Start development server
+# Edit .env with your API_URL and admin route settings
 npm run dev
 ```
 
@@ -116,31 +118,35 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ### Environment Variables
 
-| Variable | Default | Description |
+| Variable | Required | Description |
 |---|---|---|
-| `API_URL` | `http://localhost:4000` | NestJS backend base URL |
+| `API_URL` | Yes | NestJS backend base URL (e.g. `http://localhost:4000`) |
+| `ADMIN_LOGIN_PATH` | Yes | Backend route suffix for the hidden admin login |
+| `NEXT_PUBLIC_ADMIN_ROUTE` | Yes | Frontend URL path for the hidden admin login (e.g. `/sys/panel`) |
 
 ---
 
 ## How the API Proxy Works
 
-All `/api/*` requests from the browser are proxied to the NestJS backend via Next.js rewrites (`next.config.ts`). Server components call the backend directly using `API_URL` with the session cookie forwarded via `next/headers`.
+All `/api/*` requests from the browser are proxied to the NestJS backend via Next.js rewrites. Server components call the backend directly using `API_URL` with the session cookie forwarded via `next/headers`.
 
 ```
-Browser  →  /api/events  →  Next.js rewrite  →  http://localhost:4000/api/events
-Server   →  API_URL/api/events  (direct, with cookie forwarded)
+Browser  →  /api/events        →  Next.js rewrite  →  {API_URL}/api/events
+Server   →  {API_URL}/api/events  (direct, with cookie forwarded)
 ```
 
 ---
 
 ## Availability Chip Logic
 
-Computed on the frontend from event data (no backend field):
+Computed on the frontend from event data (no extra backend field):
 
-1. **Closed** — `status === "CANCELLED"` or `endsAt < now`
-2. **Full** — `spotsLeft === 0`
-3. **Almost full** — `spotsLeft <= capacity * 0.2`
-4. **Open** — everything else
+| State | Condition |
+|---|---|
+| Closed | `status === "CANCELLED"` or `endsAt < now` |
+| Full | `spotsLeft === 0` |
+| Almost full | `spotsLeft <= capacity × 0.2` |
+| Open | everything else |
 
 ---
 
@@ -153,18 +159,20 @@ Computed on the frontend from event data (no backend field):
 5. Shows green (checked in) or red (already scanned / invalid) result
 6. Manual search fallback for cases where camera is unavailable
 
+> **Note:** The camera scanner requires HTTPS in production (browser security restriction). On localhost it works in Chrome and Edge.
+
 ---
 
 ## Adding Member Photos
 
-Edit `src/lib/members.ts` — add, remove, or reorder entries in the `MEMBER_PHOTOS` array. Each entry needs `src` (Cloudinary URL), `alt`, and `caption`.
+Edit `src/lib/members.ts` — add, remove, or reorder entries in the `MEMBER_PHOTOS` array. Each entry needs `src` (URL), `alt`, and `caption`.
 
 ---
 
 ## Scripts
 
 ```bash
-npm run dev      # Development server with Turbopack
+npm run dev      # Development server (Turbopack)
 npm run build    # Production build
 npm run start    # Start production server
 npm run lint     # ESLint
@@ -172,8 +180,22 @@ npm run lint     # ESLint
 
 ---
 
+## Deploying to Vercel
+
+1. Push the repo to GitHub
+2. Import the project in [Vercel](https://vercel.com)
+3. Set the environment variables in Vercel project settings:
+   - `API_URL` — your deployed backend URL
+   - `ADMIN_LOGIN_PATH`
+   - `NEXT_PUBLIC_ADMIN_ROUTE`
+4. Deploy — Vercel auto-detects Next.js and handles the build
+
+> The camera check-in scanner requires the Vercel deployment to use HTTPS (it does by default).
+
+---
+
 ## Notes
 
-- The camera check-in scanner requires HTTPS in production (browser security restriction). On localhost it works in Chrome and Edge.
 - Organizer and admin routes are server-side auth guarded — unauthenticated requests redirect to `/organizer/log-in`.
 - User accounts (attendee login) are a future feature — the pages exist as placeholders.
+- The `sys/panel` admin login page is set to `noindex` and uses a configurable hidden route via `NEXT_PUBLIC_ADMIN_ROUTE`.

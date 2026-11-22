@@ -4,7 +4,6 @@ import { useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import * as z from "zod";
-import { ApiError } from "@/lib/api";
 import { FormField } from "@/components/shared/form-field";
 
 const emailSchema = z.object({
