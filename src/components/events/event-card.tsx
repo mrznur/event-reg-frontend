@@ -21,7 +21,7 @@ export function EventCard({ event }: Props) {
                 {isPicsumHost ? (
                     <Image
                         src={event.coverImage}
-                        alt=""
+                        alt={event.title}
                         fill
                         sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                         className="object-cover transition-transform duration-500 group-hover:scale-105"
@@ -30,7 +30,7 @@ export function EventCard({ event }: Props) {
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
                         src={event.coverImage}
-                        alt=""
+                        alt={event.title}
                         className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />
                 )}

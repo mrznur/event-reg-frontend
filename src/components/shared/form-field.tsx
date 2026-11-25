@@ -32,7 +32,7 @@ export function FormField({
         aria-invalid={error ? true : undefined}
         aria-describedby={describedBy}
         className={`block w-full border bg-paper px-4 py-3 text-ink ${
-          error ? "border-error" : "border-ink"
+          error ? "border-error" : "border-ink/20"
         } ${className}`}
         {...props}
       />

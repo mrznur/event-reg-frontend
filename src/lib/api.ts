@@ -391,7 +391,7 @@ export async function adminCancelEvent(id: string): Promise<void> {
     await request<{ ok: boolean }>(`/api/admin/events/${id}/cancel`, { method: "PATCH" });
 }
 
-// ─── Auth ─────────────────────────────────────────────────────────────────────
+// ─── Auth — server-side session ──────────────────────────────────────────────
 
 export async function getMe(): Promise<User | null> {
     try {

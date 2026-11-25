@@ -36,17 +36,18 @@ export function EnquiryForm() {
         setFieldErrors({});
         setPending(true);
         try {
-            await fetch("/api/contact", {
+            const res = await fetch("/api/contact", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(input),
                 credentials: "same-origin",
             });
+            if (!res.ok) throw new Error("failed");
+            setSubmitted(true);
         } catch {
-            // fail silently — message still shows sent
+            setFieldErrors({ message: "Could not send your message. Please try again." });
         }
         setPending(false);
-        setSubmitted(true);
     }
 
     if (submitted) {

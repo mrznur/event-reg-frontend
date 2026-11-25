@@ -1,16 +1,14 @@
 import type { Event } from "@/lib/api";
+import { EVENT_CATEGORIES } from "@/lib/constants";
 
 // ─── Category labels ─────────────────────────────────────────────────────────
 
-export const CATEGORY_LABELS: Record<string, string> = {
-    WORKSHOP: "Workshop",
-    HACKATHON: "Hackathon",
-    TALK: "Talk",
-    SOCIAL: "Social",
-};
+const CATEGORY_LABEL_MAP: Record<string, string> = Object.fromEntries(
+    EVENT_CATEGORIES.map(({ value, label }) => [value, label]),
+);
 
 export function categoryLabel(category: string): string {
-    return CATEGORY_LABELS[category] ?? category;
+    return CATEGORY_LABEL_MAP[category] ?? category;
 }
 
 // ─── Date formatting ──────────────────────────────────────────────────────────
@@ -40,7 +38,13 @@ export function formatDateLong(iso: string, timezone: string): string {
 
 // ─── Image helpers ────────────────────────────────────────────────────────────
 
-const ALLOWED_IMAGE_HOSTS = ["picsum.photos", "fastly.picsum.photos"];
+const ALLOWED_IMAGE_HOSTS = [
+    "picsum.photos",
+    "fastly.picsum.photos",
+    "i.ibb.co.com",
+    "res.cloudinary.com",
+    "placehold.co",
+];
 
 export function isAllowedImageHost(url: string): boolean {
     return ALLOWED_IMAGE_HOSTS.some((host) => url.includes(host));

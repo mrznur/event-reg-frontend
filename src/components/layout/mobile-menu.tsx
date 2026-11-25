@@ -122,11 +122,12 @@ export function MobileMenu({
                         Log In
                     </Link>
 
-                    <div className="flex h-12 w-full [&>a]:flex [&>a]:h-full [&>a]:w-full [&>a]:items-center [&>a]:justify-center">
+                    <div className="flex h-12 w-full">
                         <CtaLink
                             href="/register"
                             size="lg"
                             onClick={close}
+                            className="flex h-full w-full items-center justify-center"
                         >
                             Register
                         </CtaLink>
