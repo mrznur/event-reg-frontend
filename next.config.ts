@@ -1,9 +1,6 @@
 import type { NextConfig } from "next";
 
-const API_URL = process.env.API_URL ?? "http://localhost:4000";
-
 const nextConfig: NextConfig = {
-  /* config options here */
   cacheComponents: true,
   partialPrefetching: true,
   devIndicators: false,
@@ -25,10 +22,11 @@ const nextConfig: NextConfig = {
     },
   },
   async rewrites() {
+    const apiUrl = process.env.API_URL ?? "http://localhost:4000";
     return [
       {
         source: "/api/:path*",
-        destination: `${API_URL}/api/:path*`,
+        destination: `${apiUrl}/api/:path*`,
       },
     ];
   },
