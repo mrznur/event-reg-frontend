@@ -2,16 +2,19 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useSession } from "@/components/auth/session-provider";
+import { logout, ApiError } from "@/lib/api";
 
 export function LogoutButton() {
     const router = useRouter();
-    const { logout } = useSession();
     const [pending, setPending] = useState(false);
 
     async function handleLogout() {
         setPending(true);
-        await logout();
+        try {
+            await logout();
+        } catch (err) {
+            if (!(err instanceof ApiError)) console.error(err);
+        }
         router.push("/organizer/log-in");
     }
 
